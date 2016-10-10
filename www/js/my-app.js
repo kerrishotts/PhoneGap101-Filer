@@ -1,9 +1,51 @@
-// Initialize app
-var myApp = new Framework7();
+// switch app style based on device OS
+// copied from: https://framework7.io/tutorials/maintain-both-ios-and-material-themes-in-single-app.html
+(function () {
+    Framework7.prototype.device.android = true;
+    if (Framework7.prototype.device.android) {
+        Dom7('head').append(
+            '<link rel="stylesheet" href="./lib/framework7/css/framework7.material.min.css">' +
+            '<link rel="stylesheet" href="./lib/framework7/css/framework7.material.colors.min.css">' +
+            '<link rel="stylesheet" href="./css/my-app.material.css">'
+        );
+    }
+    else {
+        Dom7('head').append(
+            '<link rel="stylesheet" href="./lib/framework7/css/framework7.ios.min.css">' +
+            '<link rel="stylesheet" href="./lib/framework7/css/framework7.ios.colors.min.css">' +
+            '<link rel="stylesheet" href="./css/my-app.ios.css">'
+        );
+    }
+})();
 
+// Determine theme depending on device
+var isAndroid = Framework7.prototype.device.android === true;
+var isIos = Framework7.prototype.device.ios === true;
+ 
+// Set Template7 global devices flags
+Template7.global = {
+    android: isAndroid,
+    ios: isIos
+};
 
 // If we need to use custom DOM library, let's save it to $$ variable:
 var $$ = Dom7;
+
+// Change Through navbar layout to Fixed
+if (isAndroid) {
+    // Change class
+    $$('.view.navbar-through').removeClass('navbar-through').addClass('navbar-fixed');
+    // And move Navbar into Page
+    $$('.view .navbar').prependTo('.view .page');
+}
+
+// Initialize app
+var myApp = new Framework7({
+    // Enable Material theme for Android device only
+    material: isAndroid ? true : false,
+    // Enable Template7 pages
+    template7Pages: true 
+});
 
 // Add view
 var mainView = myApp.addView('.view-main', {
