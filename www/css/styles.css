@@ -13,3 +13,11 @@
 .statusbar-overlay {
     background: #000000;
 }
+
+/* Additional icons */
+i.icon.icon-svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: currentColor;
+  line-height: 1;
+}
