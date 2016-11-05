@@ -17,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/phonegap/phonegap-template-framework7/issues"
   },
-  "homepage": "https://github.com/phonegap/phonegap-template-framework7"
+  "homepage": "https://github.com/phonegap/phonegap-template-framework7",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2"
+  }
 }
