@@ -1,0 +1,33 @@
+{{#if @global.ios}}
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="left">
+            {{#if backText}}
+            <a href="#" class="back link">
+                <i class="icon icon-back"></i>
+                <span>{{backText}}</span>
+            </a>
+            {{/if}}
+        </div>
+        <div class="center sliding">
+            {{pageTitle}}
+        </div>
+        <div class="right">
+            {{#if rightIcon}}
+            <a href="#" class="link icon-only">
+                <i class="icon icon-{{rightIcon}}"></i>
+            </a>
+            {{/if}}
+            {{#if rightSVGIcon}}
+            <a href="#" class="link icon-only">
+                <i class="icon icon-svg">
+                    <svg viewBox="0 0 32 32">
+                        <use xlink:href="#icon-{{rightSVGIcon}}"></use>
+                    </svg>
+                </i>
+            </a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{/if}}

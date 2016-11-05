@@ -1,0 +1,32 @@
+{{#if @global.android}}
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="left">
+            {{#if backText}}
+            <a href="#" class="back icon-only">
+                <i class="icon icon-back"></i>
+            </a>
+            {{/if}}
+        </div>
+        <div class="center">
+            {{pageTitle}}
+        </div>
+        <div class="right">
+            {{#if rightIcon}}
+            <a href="#" class="link icon-only">
+                <i class="icon icon-{{rightIcon}}"></i>
+            </a>
+            {{/if}}
+            {{#if rightSVGIcon}}
+            <a href="#" class="link icon-only">
+                <i class="icon icon-svg">
+                    <svg viewBox="0 0 32 32">
+                        <use href="#icon-{{rightSVGIcon}}"></use>
+                    </svg>
+                </i>
+            </a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{/if}}

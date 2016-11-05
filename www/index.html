@@ -10,7 +10,11 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; 
+                   script-src 'self' 'nonce-bootstrap' 'unsafe-eval';
+                   style-src 'self' 'unsafe-inline'; 
+                   media-src *">
 
     <!-- Required meta tags-->
     <meta charset="utf-8">
@@ -30,15 +34,6 @@
     <!-- Status bar overlay for full screen mode (PhoneGap) -->
     <div class="statusbar-overlay"></div>
 
-    <!-- Panels overlay-->
-    <div class="panel-overlay"></div>
-    <!-- Left panel with reveal effect-->
-    <div class="panel panel-left panel-reveal">
-        <div class="content-block">
-            <p>Left panel content goes here</p>
-        </div>
-    </div>
-
     <!-- Views -->
     <div class="views">
         <!-- Your main view, should have "view-main" class -->
@@ -48,43 +43,48 @@
                 <div class="navbar-inner">
                     <!-- We need cool sliding animation on title element, so we have additional "sliding" class -->
                     <div class="center sliding">Filer</div>
-                    <div class="right">
-                        <!--
-                          Right link contains only icon - additional "icon-only" class
-                          Additional "open-panel" class tells app to open panel when we click on this link
-                        -->
-                        <a href="#" class="link icon-only open-panel"><i class="icon icon-bars"></i></a>
-                    </div>
                 </div>
             </div>
             <!-- Pages container, because we use fixed-through navbar and toolbar, it has additional appropriate classes-->
-            <div class="pages navbar-through toolbar-through">
+            <div class="pages">
                 <!-- Page, "data-page" contains page name -->
-                <div data-page="index" class="page">
-                    <!-- Scrollable page content -->
-                    <div class="page-content">
-                        <div class="content-block">
-                            <p>Page content goes here</p>
-                            <!-- Link to another page -->
-                            <a href="about.html">About app</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Bottom Toolbar-->
-            <div class="toolbar toolbar-bottom">
-                <div class="toolbar-inner">
-                    <!-- Toolbar links -->
-                    <a href="#" class="link">Link 1</a>
-                    <a href="#" class="link">Link 2</a>
-                </div>
             </div>
         </div>
     </div>
 
+    <!-- our own SVG icons -->
+    <img class="inject-me" src="/img/sprite.svg">
+
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="lib/framework7/js/framework7.min.js"></script>
-    <script type="text/javascript" src="js/my-app.js"></script>
+
+    <script type="text/javascript" src="lib/svg-injector/svg-injector.min.js"></script>
+    <script type="text/javascript" src="lib/systemjs/system.js"></script>
+    <script type="text/javascript" nonce="bootstrap">
+        // Elements to inject
+        var mySVGsToInject = document.querySelectorAll('img.inject-me');
+
+        // Do the injection
+        SVGInjector(mySVGsToInject);
+
+        SystemJS.config({
+            baseURL: "",
+            map: {
+                text: "lib/systemjs/plugins/text.js"
+            },
+            meta: {
+                "html/*.html": {
+                    loader: "text"
+                }
+            }
+        });
+
+        SystemJS.import("js/app.js").then( app => {
+            console.log("app");
+        }).catch( err => {
+            console.log("err", err);
+        }); 
+    </script>
 </body>
 
 </html>
