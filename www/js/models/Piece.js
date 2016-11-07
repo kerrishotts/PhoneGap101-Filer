@@ -8,7 +8,7 @@ class Piece extends Entity {
     this.type =         (data && data.type)         || PIECE.PIECETYPE;
     this.title =        (data && data.title)        || "";
     this.content =      (data && data.content)      || "";
-    this.color =        (data && data.color)        || "#000000";
+    this.color =        (data && data.color)        || "inherit";
     this.dateCreated =  (data && data.dateCreated)  || Date.now();
     this.dateModified = (data && data.dateModified) || Date.now();
     
@@ -19,6 +19,20 @@ class Piece extends Entity {
     if (!(this.dateModified instanceof Date)) {
       this.dateModified = new Date(this.dateModified);
     }
+  }
+
+  getPrettyModifiedDate() {
+    let aDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    return this.dateModified[ this.dateModified > aDayAgo ? "toLocaleTimeString"
+                                                          : "toLocaleDateString" ]();
+  }
+
+  getTextContent() {
+    return `<h1>${this.title}</h1><p>${this.content}</p>`;
+  }
+
+  getImageContent() {
+    return null;
   }
 
   static make({data, store} = {}) {
