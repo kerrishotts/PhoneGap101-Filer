@@ -15,12 +15,12 @@ describe ("Emitter", () => {
             emitter.emit("change");
         });
         it("should be able to subscribe to an event with no prior subscribers", () => {
-            emitter.subscribe("change", (sender, event, data) => {
+            emitter.subscribe("change", this, (sender, event, data) => {
                 cbCount++;
             }, {blocking: true});
         });
         it("should be able to subscribe to an event with prior subscribers", () => {
-            emitter.subscribe("change", (sender, event, data) => {
+            emitter.subscribe("change", this, (sender, event, data) => {
                 cbCount++;
             }, {blocking: true});
         });
@@ -30,13 +30,13 @@ describe ("Emitter", () => {
         });
         it("should be able to emit a non-blocking event with subscribers", (done) => {
             emitter.emit("change");
-            setImmediate( () => {
+            setTimeout( () => {
               expect(cbCount).to.equal(4);
               done();
-            });
+            }, 5);
         });
         it("should be able to emit a non-blocking debounced event with subscribers", (done) => {
-            emitter.subscribe("change", (sender, event, data) => {
+            emitter.subscribe("change", this, (sender, event, data) => {
                 cbCount++;
             }, {blocking: false, debounce: 100});
             emitter.emit("change");
@@ -51,7 +51,7 @@ describe ("Emitter", () => {
             }, 110);
         });
         it("should be able to emit a non-blocking debounced event with subscribers using last edge", (done) => {
-            emitter.subscribe("change", (sender, event, data) => {
+            emitter.subscribe("change", this, (sender, event, data) => {
                 cbCount++;
             }, {blocking: false, debounce: 100, edge: 1});
             emitter.emit("change");
