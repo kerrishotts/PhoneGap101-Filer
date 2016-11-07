@@ -1,25 +1,28 @@
 {
-  "name": "phonegap-template-framework7",
-  "version": "1.0.3",
-  "description": "A starter template for building PhoneGap apps with Framework7.",
+  "name": "filer-phonegap101-packt",
+  "version": "1.0.0",
+  "description": "A simple Framework7 app intended for use with PhoneGap using the Packt PhoneGap 101 course.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/phonegap/phonegap-template-framework7.git"
+    "url": "https://github.com/kerrishotts/phonegap101.git"
   },
-  "author": "PhoneGap Team",
+  "author": "Kerri Shotts",
   "license": "Apache-2.0.0",
   "keywords": [
     "ecosystem:phonegap",
-    "ecosystem:cordova",
-    "cordova:template",
-    "phonegap:template"
+    "ecosystem:cordova"
   ],
   "bugs": {
-    "url": "https://github.com/phonegap/phonegap-template-framework7/issues"
+    "url": "https://github.com/kerrishotts/phonegap101/issues"
   },
-  "homepage": "https://github.com/phonegap/phonegap-template-framework7",
+  "homepage": "https://github.com/kerrishotts/phonegap101",
   "devDependencies": {
     "chai": "^3.5.0",
+    "http-server": "^0.9.0",
     "mocha": "^3.1.2"
+  },
+  "scripts":{
+    "test": "mocha",
+    "serve": "http-server www -p 8080"
   }
 }
