@@ -42,13 +42,9 @@ class Entity extends Emitter {
 
     set(key, value) {
         let oldValue = this[key];
-        console.log(1);
         this[key] = value;
-        console.log(2);
         this.emit(`${key}-changed`, {"to": value, "from": oldValue});
-        console.log(3);
         this.emit(`changed`, {key, "to": value, "from": oldValue});
-        console.log(`setting ${key} to ${value}`);
     }
 
     get(key) {
