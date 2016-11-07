@@ -1,5 +1,4 @@
 const _subscribers = Symbol("_subscribers");
-const DEBUG = true;
 
 function _debounce(fn, ms = 1000, edge = 0) {
     let last = -1;
@@ -49,28 +48,41 @@ class Emitter {
      * 
      * @memberOf Emitter
      */
-    subscribe(event, handler, {blocking = false, debounce = false, edge = 0} = {}) {
-        if (DEBUG) {
-            console.log(`[EVENT SUBSCRIPTION] ${event} ${handler} blocking: ${blocking} debounce: ${debounce} edge: ${edge} this: ${JSON.stringify(this,null,2)}`);
+    subscribe(event, that, handler, {blocking = false, debounce = false, edge = 0} = {}) {
+        if (!that) {
+            that = this;
         }
+
         let normalizedEventName = event.toLowerCase().trim();
-        let eventSet = this[_subscribers].get(normalizedEventName);
-        if (!eventSet) {
-            eventSet = new Set();
-            this[_subscribers].set(normalizedEventName, eventSet);
+
+        // ref is the object reference; if the object has a uuid, we'll assume that we can
+        // use uuid as the reference instead of storing the entire object.
+        let ref = that && that.uuid;
+        if (!ref) {
+            ref = that;
         }
+
+        let eventMap = this[_subscribers].get(normalizedEventName);
+        if (!eventMap) {
+            eventMap = new Map();
+            this[_subscribers].set(normalizedEventName, eventMap);
+        }
+
+        let thatSet = eventMap.get(ref);
+        if (!thatSet) {
+            thatSet = new Set();
+            eventMap.set(ref, thatSet);
+        }
+
         if (debounce !== false && debounce >= 0) {
-            let debouncedHandler = _debounce.call(this, handler, debounce, edge);
-            eventSet.add(debouncedHandler);
+            let debouncedHandler = _debounce.call(that, handler, debounce, edge);
+            thatSet.add(debouncedHandler);
             return debouncedHandler;
         } else {
             let newHandler = blocking ? handler : function (...args) {
-                if (DEBUG) {
-                    console.log(`[EVENT HANDLER] ${event} ${handler} ${this} ${args}`);
-                }
-                return setTimeout(handler.bind(this, ...args), 0);
+                return setTimeout(handler.bind(that, ...args), 0);
             };
-            eventSet.add(newHandler);
+            thatSet.add(newHandler);
             return newHandler;
         }
     }
@@ -84,16 +96,27 @@ class Emitter {
      * 
      * @memberOf Emitter
      */
-    unsubscribe(event, handler) {
+    unsubscribe(event, that, handler) {
         let normalizedEventName = event.toLowerCase().trim();
-        let eventSet = this[_subscribers].get(normalizedEventName);
-        if (!eventSet) {
+        let ref = that && that.uuid;
+        if (!ref) {
+            ref = that;
+        }
+
+        let eventMap = this[_subscribers].get(normalizedEventName);
+        if (!eventMap) {
             return;
         }
+
+        let thatSet = eventMap.get(ref);
+        if (!thatSet) {
+            return;
+        }
+
         if (!handler) {
-            this[_subscribers].delete(normalizedEventName);
+            eventMap.delete(ref);
         } else {
-            eventSet.delete(handler);
+            thatSet.delete(handler);
         }
     }
 
@@ -117,33 +140,26 @@ class Emitter {
      * @memberOf Emitter
      */
     emit(event, data, {blocking = false} = {}) {
-        if (DEBUG) {
-            console.log(`[EVENT] ${event} ${data}`);
-        }
         let normalizedEventName = event.toLowerCase().trim();
-        let eventSet = this[_subscribers].get(normalizedEventName);
-        if (!eventSet) {
+        let eventMap = this[_subscribers].get(normalizedEventName);
+        if (!eventMap) {
             return;
         }
 
         let sender = this;
-
-        eventSet.forEach(handler => {
-            if (typeof handler !== "function") {
-                if (DEBUG) { console.log(`[EVENT] ... ${handler} is not a function`); }
-                return;
-            }
-            if (DEBUG) {
-                console.log(`[EVENT] ... blocking: ${blocking}`);
-                console.log(`[EVENT] ... Calling ${handler}`);
-            }
-            if (blocking) {
-                return handler.call(this, sender, event, data);
-            } else {
-                return setTimeout(function() {
-                    return handler.call(this, sender, event, data);
-                }, 0);
-            }
+        eventMap.forEach(thatSet => {
+            thatSet.forEach(handler => {
+                if (typeof handler !== "function") {
+                    return;
+                }
+                if (blocking) {
+                    return handler(sender, event, data);
+                } else {
+                    return setTimeout(function() {
+                        return handler(sender, event, data);
+                    }, 0);
+                }
+            });
         });
     }
 
