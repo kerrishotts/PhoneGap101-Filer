@@ -1,0 +1,25 @@
+{{> navbar:ios backText="Back"}}
+<div data-page="note" class="page">
+{{> navbar:android backText="Back"}}
+{{#if @global.android}}
+    <a href="#" class="floating-button color-pink">
+        <i class="icon icon-plus"></i>
+    </a>
+{{/if}}
+    <div class="page-content">
+        <div class="list-block sortable">
+            <ul>
+                {{renderPieces()}}
+            </ul>
+        </div>
+{{#if @global.ios}}
+        <div class="list-block">
+            <ul>
+                <li>
+                    <a href="#" class="item-link list-button">Add Text</a>
+                </li>
+            </ul>
+        </div>
+{{/if}}
+    </div>
+</div>
