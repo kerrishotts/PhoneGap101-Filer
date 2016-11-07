@@ -3,17 +3,20 @@ const LocalStorageAdapter = require("./store/adapters/LocalStorageAdapter.js");
 
 // Pages
 const NotesPage = require("js/pages/NotesPage.js");
+const NotePage = require("js/pages/NotePage.js");
 const AboutPage = require("js/pages/AboutPage.js");
 
 // Partials
 const partials = {
     "navbar:ios": require("/html/partials/navbar-ios.html!text"),
-    "navbar:android": require("/html/partials/navbar-android.html!text")
+    "navbar:android": require("/html/partials/navbar-android.html!text"),
+    "textPiece": require("/html/partials/textPiece.html!text")
 };
 
 // Page templates
 const templates = {
-    notesPage: require("/html/pages/notes.html!text")
+    notesPage: require("/html/pages/notes.html!text"),
+    notePage: require("/html/pages/note.html!text")
 };
 
 
@@ -76,7 +79,7 @@ if (window) { window.app = app; }
 if (typeof cordova !== "undefined") {
     $$(document.on("deviceready"), startApp);
 } else {
-    setTimeout(startApp, 10);
+    setTimeout(startApp, 50);
 }
 
 // require all the page logic so that they can react when their respective html
@@ -98,8 +101,6 @@ function startApp() {
         store: app.store
     });
 
-    notesPage.init();
-
     app.go(notesPage, {animate: false});
 
     if (isAndroid) {
@@ -111,11 +112,36 @@ function startApp() {
 }
 
 app.go = function (page, {animate = true} = {}) {
+    let pageCallbacks = {};
+    ["onPageInit", "onPageBeforeInit", "onPageReinit", "onPageBeforeAnimation", 
+     "onPageAfterAnimation", "onPageBeforeRemove", "onPageBack", "onPageAfterBack"].forEach(
+         (pageCallback) => {
+             pageCallbacks[pageCallback] = window.app[pageCallback](page.name, (...args) => {
+                 if (page[pageCallback]) {
+                    page[pageCallback].apply(page, args);
+                 }
+             });
+         }
+    );
+    let onPageBeforeRemove = window.app.onPageBeforeRemove(page.name, () => {
+        for (let pageCallback of Object.keys(pageCallbacks)) {
+            pageCallbacks[pageCallback].remove();
+        }
+        onPageBeforeRemove.remove();
+        if (page.destroy) {
+            page.destroy.call(page);
+        }
+    });
+
     app.mainView.router.load({
         template: page.template,
         context: page.context,
         animatePages: animate
     });
+}
+
+app.goBack = function () {
+    app.mainView.router.back();
 }
  
 
