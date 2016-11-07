@@ -1,0 +1,17 @@
+.page[data-page=note] .list-block .card {
+    background: transparent;
+    width: calc(100%);
+    margin: 0;
+}
+
+.page[data-page=note] .list-block.sortable-opened .card {
+    width: calc(100% - 40px);
+}
+
+.page[data-page=note] .list-block .item-content {
+    padding-left: 0;
+}
+
+.page[data-page=note] .list-block .card .card-header {
+    font-weight: bold;
+}

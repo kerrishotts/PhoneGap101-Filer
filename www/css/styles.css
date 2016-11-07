@@ -21,3 +21,10 @@ i.icon.icon-svg {
   fill: currentColor;
   line-height: 1;
 }
+
+.list-block.media-list {
+    margin: 0 0;
+}
+.list-block.sortable {
+    margin: 0 0;
+}
