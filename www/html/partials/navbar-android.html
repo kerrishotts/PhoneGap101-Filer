@@ -8,7 +8,7 @@
             </a>
             {{/if}}
         </div>
-        <div class="center">
+        <div class="center {{#if centerClass}}{{centerClass}}{{/if}}">
             {{pageTitle}}
         </div>
         <div class="right">
@@ -17,15 +17,15 @@
                 <i class="icon icon-{{rightIcon}}"></i>
             </a>
             {{/if}}
-            {{#if rightSVGIcon}}
-            <a href="#" class="link icon-only">
+            {{#each rightSVGIcons}}
+            <a href="#" class="link icon-only icon-{{this}}">
                 <i class="icon icon-svg">
                     <svg viewBox="0 0 32 32">
-                        <use href="#icon-{{rightSVGIcon}}"></use>
+                        <use xlink:href="#icon-{{this}}"></use>
                     </svg>
                 </i>
             </a>
-            {{/if}}
+            {{/each}}
         </div>
     </div>
 </div>
