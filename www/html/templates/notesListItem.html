@@ -1,13 +1,13 @@
 <li class="swipeout">
     <div class="swipeout-content">
-        <a href="#" class="item-content item-link" style="height: 88px">
-            <div class="item-media"><img src="{{picture}}"></div>
+        <a href="#" data-uuid="{{uuid}}" data-title="{{title}}" class="item-content item-link" style="height: 88px; color: {{color}}">
+            <div class="item-media">{{getThumbnailImage()}}</div>
             <div class="item-inner">
                 <div class="item-title-row">
                     <div class="item-title">{{title}}</div>
-                    <div class="item-after">{{dateModified.toLocaleDateString()}}</div>
+                    <div class="item-after">{{getPrettyModifiedDate()}}</div>
                 </div>
-                <div class="item-text">{{text}}</div>
+                <div class="item-text" style="color: {{color}}">{{getTextContent()}}</div>
             </div>
         </a>
     </div>
