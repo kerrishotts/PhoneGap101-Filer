@@ -27,10 +27,11 @@ class Notes extends Entity {
       }));
     });
   }
-  
+
   static make({data, store} = {}) {
     return new Notes({data, store});
   }
+
 }
 
 module.exports = Notes;
