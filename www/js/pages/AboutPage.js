@@ -1,8 +1,26 @@
 const $$ = window.Dom7;
-const app = window.app;
 
-$$(document).on('pageInit', '.page[data-page="about"]', function (e) {
-    // Following code will be executed for page with data-page attribute equal to "about"
-    console.log("HI");
-    app.alert('Here comes About page');
-});
+const PAGESEL = `.page[data-page="about"]`;
+
+const _template = Template7.compile(require("../../html/pages/about.html!text"));
+
+let _compiledTemplate;
+
+class AboutPage {
+
+    constructor() {
+        this.name = "about";
+        this.template = _template;
+        this.context = {
+            name: this.name,
+            pageTitle: "About"
+        };
+    }
+
+    static make() {
+        return new AboutPage();
+    }
+
+}
+
+module.exports = AboutPage;
