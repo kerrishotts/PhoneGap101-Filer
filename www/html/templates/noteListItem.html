@@ -1,7 +1,8 @@
 <li class="swipeout">
     <div class="swipeout-content">
-        <a href="#" data-uuid="{{uuid}}" data-title="{{title}}" class="item-content item-link" style="color: {{color}}">
-{{> textPiece}}
+        <a href="#" data-uuid="{{uuid}}" data-title="{{title}}" data-type="{{type}}" class="item-content item-link" style="color: {{color}}">
+{{#render_piece}}
+{{/render_piece}}
         </a>
     </div>
     <div class="swipeout-actions-right">
