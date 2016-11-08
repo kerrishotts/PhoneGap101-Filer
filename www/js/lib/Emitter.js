@@ -43,8 +43,19 @@ class Emitter {
      *     event: string
      *     data: any
      * 
-     * @param {string}   event
-     * @param {function} handler
+     * If debounce is a number, only one event within the given
+     * timeframe (milliseconds) will trigger subscribers. If false,
+     * subscribers are called for every event. If `edge` is zero, the first
+     * event triggers the subscribers, whereas `egdge=1` will trigger only on the
+     * last event. If debounce is a number, `blocking` is assumed to be `false`.
+     * 
+     * @param {string}   event                  event to which to subscribe
+     * @param {Object}   that                   associated object
+     * @param {function} handler                handler taking (sender, event, data)
+     * @param {boolean}  [blocking=false]       if true, will execute this tick; otherwise next
+     * @param {boolean|number} [debounce=false] if not false, calls are debounced per ms
+     * @param {number}   [edge=0]               determines edge for debouncing; 0 = first, 1 = last
+     * @returns {function} new handler if any wrapping was necessary
      * 
      * @memberOf Emitter
      */
@@ -90,8 +101,9 @@ class Emitter {
     /**
      * Unsubscribe a handler from an event.
      * 
-     * @param {string} event
-     * @param {string} handler
+     * @param {string} event       event from which to unsubscribe
+     * @param {object} that        Associated Object
+     * @param {string} handler     handler method
      * @returns {void}
      * 
      * @memberOf Emitter
@@ -126,11 +138,6 @@ class Emitter {
      * next tick. If true, however, subscribers will be called within the current
      * tick.
      * 
-     * If debounce is a number, only one event within the given
-     * timeframe (milliseconds) will trigger subscribers. If false,
-     * subscribers are called for every event. If `edge` is zero, the first
-     * event triggers the subscribers, whereas `egdge=1` will trigger only on the
-     * last event. If debounce is a number, `blocking` is assumed to be `false`.
      * 
      * @param {string} event
      * @param {any} data

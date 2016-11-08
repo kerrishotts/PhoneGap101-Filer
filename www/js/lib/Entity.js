@@ -40,6 +40,17 @@ class Entity extends Emitter {
         }
     }
 
+    /**
+     * Sets the specified key to the specified value and raises two events:
+     * 
+     *  - {key}-changed (payload: {to:, from:})
+     *  - changed (payload: {key:, to:, from:})
+     * 
+     * @param {any} key
+     * @param {any} value
+     * 
+     * @memberOf Entity
+     */
     set(key, value) {
         let oldValue = this[key];
         this[key] = value;
@@ -47,6 +58,14 @@ class Entity extends Emitter {
         this.emit(`changed`, {key, "to": value, "from": oldValue});
     }
 
+    /**
+     * Returns the value for the specified key.
+     * 
+     * @param {any} key
+     * @returns {any}
+     * 
+     * @memberOf Entity
+     */
     get(key) {
         return this[key];
     }
@@ -156,6 +175,8 @@ class Entity extends Emitter {
      * make sure that uuid is set prior, or you'll load a random (and probably nonexistant)
      * entity.
      * 
+     * @param {boolean} [emit=true]    if false, the changed event won't emit
+     * 
      * @returns Promise<Entity>
      * 
      * @memberOf Entity
@@ -167,6 +188,14 @@ class Entity extends Emitter {
         });
     }
 
+    /**
+     * Removes the model from persistent storage.
+     * 
+     * @param {boolean} [emit=true]    if false, the changed event won't emit
+     * @returns
+     * 
+     * @memberOf Entity
+     */
     remove({emit = true} = {}) {
         return this[_store].remove(this.uuid).then(() => {
             if (emit) { this.emit("removed", this.uuid); }
@@ -229,7 +258,6 @@ class Entity extends Emitter {
         }
     }
 
-    /// mark: static methods
     static declassify(original) {
         return original.declassify();
     }
