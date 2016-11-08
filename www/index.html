@@ -27,9 +27,8 @@
     <!-- Your app title -->
     <title>Filer</title>
 
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/notesPage.css">
-    <link rel="stylesheet" href="css/notePage.css">
+    <!-- styles are injected later -->
+
 </head>
 
 <body>
@@ -50,12 +49,14 @@
             <!-- Pages container, because we use fixed-through navbar and toolbar, it has additional appropriate classes-->
             <div class="pages">
                 <!-- Page, "data-page" contains page name -->
+                <div data-page="start" class="page">
+                </div>
             </div>
         </div>
     </div>
 
     <!-- our own SVG icons -->
-    <img class="inject-me" src="/img/symbol-defs.svg">
+    <img class="inject-me" src="./img/symbol-defs.svg">
 
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="lib/framework7/js/framework7.min.js"></script>
