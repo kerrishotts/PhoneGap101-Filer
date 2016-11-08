@@ -1,29 +1,29 @@
 const STORE = require("../../constants/store.js");
 
 let localStorage = (typeof window !== "undefined" && window.localStorage) ||
-                   require("./mocks/localStorage.js");
+  require("./mocks/localStorage.js");
 
 class LocalStorageAdapter {
   constructor() {
-    
+
   }
-  
+
   save(uuid, data) {
     return new Promise((resolve, reject) => {
       try {
-          localStorage.setItem(uuid, JSON.stringify(data));
-          resolve();
+        localStorage.setItem(uuid, JSON.stringify(data));
+        resolve();
       } catch (err) {
         reject({
           code: STORE.CODES.JSON_STRINGIFY_ERROR,
           message: STORE.MESSAGES.JSON_STRINGIFY_ERROR,
-          err, 
+          err,
           data
         });
       }
     });
   }
-  
+
   load(uuid) {
     return new Promise((resolve, reject) => {
       let data = localStorage.getItem(uuid);
@@ -47,7 +47,7 @@ class LocalStorageAdapter {
       }
     });
   }
-  
+
   remove(uuid) {
     return new Promise((resolve) => {
       localStorage.removeItem(uuid);
@@ -58,7 +58,7 @@ class LocalStorageAdapter {
   getLocalStorage() {
     return localStorage;
   }
-  
+
   static make() {
     return new LocalStorageAdapter();
   }
