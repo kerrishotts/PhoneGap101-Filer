@@ -30,7 +30,7 @@ class Note extends Entity {
   }
   
   load() {
-    return super.load().then( () => {
+    return super.load({emit: false}).then( () => {
       return Promise.all(this.content.map((item,idx) => {
         // contents will be an array of UUIDS and types -- we need to load
         // each entity
@@ -39,7 +39,7 @@ class Note extends Entity {
           this.content[idx] = piece;
         });
       }));
-    });
+    }).then(() => { this.emit("changed") });
   }
 
   remove() {

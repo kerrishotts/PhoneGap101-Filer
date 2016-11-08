@@ -18,14 +18,14 @@ class Notes extends Entity {
   }
   
   load() {
-    return super.load().then( () => {
+    return super.load({emit: false}).then( () => {
       return Promise.all(this.content.map((uuid,idx) => {
         let note = Note.make({data: {uuid}, store: this.getStore()});
         return note.load().then(() => {
           this.content[idx] = note;
         });
       }));
-    });
+    }).then(() => { this.emit("changed") });
   }
 
   remove() {
