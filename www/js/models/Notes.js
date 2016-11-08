@@ -28,6 +28,24 @@ class Notes extends Entity {
     });
   }
 
+  remove() {
+    return super.remove().then( () => {
+      return Promise.all(this.content.map((item) => item.remove()));
+    });
+  }
+
+  removeNote(noteOrUUID) {
+    let uuid = noteOrUUID;
+    if (uuid.uuid) { uuid = uuid.uuid; } 
+
+    let note = this.content.find(item => item.uuid === uuid);
+    if (note) {
+      this.content = this.content.filter(item => item.uuid !== uuid);
+      return note.remove().then(() => this.save());
+    } else {
+      return Promise.reject();
+    }
+  }
   static make({data, store} = {}) {
     return new Notes({data, store});
   }

@@ -42,6 +42,26 @@ class Note extends Entity {
     });
   }
 
+  remove() {
+    return super.remove().then( () => {
+      this.content=[];
+      return Promise.all(this.content.map((item) => item.remove()));
+    });
+  }
+
+  removePiece(pieceOrUUID) {
+    let uuid = pieceOrUUID;
+    if (uuid.uuid) { uuid = uuid.uuid; } 
+
+    let piece = this.content.find(item => item.uuid === uuid);
+    if (piece) {
+      this.content = this.content.filter(item => item.uuid !== uuid);
+      return piece.remove().then(() => this.save());
+    } else {
+      return Promise.reject();
+    }
+  }
+
   getPrettyModifiedDate() {
     let aDayAgo = Date.now() - (24 * 60 * 60 * 1000);
     return this.dateModified[ this.dateModified > aDayAgo ? "toLocaleTimeString"

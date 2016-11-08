@@ -167,6 +167,12 @@ class Entity extends Emitter {
         });
     }
 
+    remove() {
+        return this[_store].remove(this.uuid).then(() => {
+            this.emit("removed", this.uuid);
+        });
+    }
+
     /**
      * Returns a deep clone of the entity so that it can be modified prior to
      * serialization. Useful for other similar situations, however.
