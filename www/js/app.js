@@ -55,82 +55,47 @@ const AboutPage = require("./pages/AboutPage.js");
 (function () {
     if (isAndroid) {
         Dom7('head').append(
-            '<link rel="stylesheet" href="./lib/framework7/css/framework7.material.min.css">' +
-            '<link rel="stylesheet" href="./lib/framework7/css/framework7.material.colors.min.css">' +
-            '<link rel="stylesheet" href="./css/my-app.material.css">'
+            `<link rel="stylesheet" href="./lib/framework7/css/framework7.material.min.css">
+             <link rel="stylesheet" href="./lib/framework7/css/framework7.material.colors.min.css">` 
         );
     }
     else {
         Dom7('head').append(
-            '<link rel="stylesheet" href="./lib/framework7/css/framework7.ios.min.css">' +
-            '<link rel="stylesheet" href="./lib/framework7/css/framework7.ios.colors.min.css">' +
-            '<link rel="stylesheet" href="./css/my-app.ios.css">'
+            `<link rel="stylesheet" href="./lib/framework7/css/framework7.ios.min.css">
+             <link rel="stylesheet" href="./lib/framework7/css/framework7.ios.colors.min.css">`
         );
     }
+    Dom7('head').append(`
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/notesPage.css">
+    <link rel="stylesheet" href="css/notePage.css">
+    `);
 })();
 
 var $$ = Dom7;
 
-// this is so we can export to window for debugging
 let app = new Framework7({
     material: isAndroid ? true : false,
     template7Pages: true
 });
 if (window) { window.app = app; }
 
-// If we're running under Cordova, we need to wait for deviceready
-// But if we aren't, we'd end up waiting forever... let's avoid that
-if (typeof cordova !== "undefined") {
-    $$(document.on("deviceready"), startApp);
-} else {
-    setTimeout(startApp, 50);
-}
-
-// require all the page logic so that they can react when their respective html
-// is loaded
-
-// start!
-function startApp() {
-
-    // acquire the entity store
-    app.store = EntityStore.make(LocalStorageAdapter.make());
-
-    // Add main view
-    app.mainView = app.addView('.view-main', {
-        dynamicNavbar: true  // iOS-style navigation bar; ignored on Android
-    });
-
-    // get and render the main page
-    let notesPage = NotesPage.make({
-        store: app.store
-    });
-
-    app.go(notesPage, {animate: false});
-
-    if (isAndroid) {
-        // We need to adjust the DOM slightly if we're running on Android
-        $$('.view.navbar-through').removeClass('navbar-through').addClass('navbar-fixed');
-        //$$('.view .navbar').prependTo('.view .page');
-        $$('.view-main > .navbar').remove();
-    }
-}
-
 app.go = function (page, {animate = true} = {}) {
     if (page.init) {
         page.init.call(page);
     }
     let pageCallbacks = {};
-    ["onPageInit", "onPageBeforeInit", "onPageReinit", "onPageBeforeAnimation", 
-     "onPageAfterAnimation", "onPageBeforeRemove", "onPageBack", "onPageAfterBack"].forEach(
-         (pageCallback) => {
-             pageCallbacks[pageCallback] = window.app[pageCallback](page.name, (...args) => {
-                 if (page[pageCallback]) {
-                    if (app.DEBUG) {console.log("calling", pageCallback, page.name);}
+    ["onPageInit", "onPageBeforeInit", "onPageReinit", "onPageBeforeAnimation",
+        "onPageAfterAnimation", "onPageBeforeRemove", "onPageBack", "onPageAfterBack"].forEach(
+        (pageCallback) => {
+            pageCallbacks[pageCallback] = window.app[pageCallback](page.name, (...args) => {
+                if (page[pageCallback]) {
+                    if (app.DEBUG) { console.log("calling", pageCallback, page.name); }
                     page[pageCallback].apply(page, args);
-                 }
-             });
-         }
-    );
+                }
+            });
+        }
+        );
     let removeHandler = window.app.onPageAfterBack(page.name, () => {
         for (let pageCallback of Object.keys(pageCallbacks)) {
             if (app.DEBUG) { console.log("Removing", page.name, pageCallback); }
@@ -154,6 +119,43 @@ app.goBack = function () {
 }
 
 app.DEBUG = true;
- 
+
+
+// start!
+function startApp() {
+    setTimeout(function () {
+
+        // acquire the entity store
+        app.store = EntityStore.make(LocalStorageAdapter.make());
+
+        // Add main view
+        app.mainView = app.addView('.view-main', {
+            dynamicNavbar: true  // iOS-style navigation bar; ignored on Android
+        });
+
+        // get and render the main page
+        let notesPage = NotesPage.make({
+            store: app.store
+        });
+
+        app.go(notesPage, { animate: false });
+
+        if (isAndroid) {
+            // We need to adjust the DOM slightly if we're running on Android
+            $$('.view.navbar-through').removeClass('navbar-through').addClass('navbar-fixed');
+            //$$('.view .navbar').prependTo('.view .page');
+            $$('.view-main > .navbar').remove();
+        }
+
+    }, 100);
+}
+
+// If we're running under Cordova, we need to wait for deviceready
+// But if we aren't, we'd end up waiting forever... let's avoid that
+if (typeof cordova !== "undefined") {
+    $$(document).on("deviceready", startApp);
+} else {
+    startApp();
+}
 
 module.exports = app;
