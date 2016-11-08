@@ -15,3 +15,7 @@
 .page[data-page=note] .list-block .card .card-header {
     font-weight: bold;
 }
+
+.page[data-page=note] .list-block .card .card-content-inner {
+    white-space: pre-line;
+}
