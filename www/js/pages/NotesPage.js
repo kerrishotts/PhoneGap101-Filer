@@ -1,5 +1,7 @@
 const $$ = window.Dom7;
 
+const PAGESEL = `.page[data-page="notes"]`;
+
 const STORE = require("../constants/store.js");
 
 const Notes = require("../models/Notes.js");
@@ -10,9 +12,9 @@ const _template = Template7.compile(require("../../html/pages/notes.html!text"))
 const _listTemplate = Template7.compile(require("../../html/templates/notesListItem.html!text"))
 
 const NotePage = require("./NotePage.js");
+const AboutPage = require("./AboutPage.js");
 
 let _compiledTemplate;
-
 
 function trimWhitespace(str) {
     return str.replace(/   /g,"").replace(/  /g,"");
@@ -26,7 +28,8 @@ class NotesPage {
         this.context = {
             name: this.name,
             pageTitle: "Filer",
-            rightSVGIcons: Template7.global.android ? ["info"] : ["info", "plus"]
+            leftSVGIcons: Template7.global.android ? [] : ["info"],
+            rightSVGIcons: Template7.global.android ? ["pencil", "checkmark", "info"] : ["pencil", "checkmark", "plus"]
         }
 
         this.store = store;
@@ -46,7 +49,7 @@ class NotesPage {
             let uuid = listItem.data("uuid");
             setTimeout(() => this.notes.removeNote(uuid), 350);
         }
-        $$(document).on("click", `.page[data-page="notes"] .swipeout-delete`, this.noteDeleted);
+        $$(document).on("click", `${PAGESEL} .swipeout-delete`, this.noteDeleted);
 
         this.noteTapped = (e) => {
             let listItem = $$($$(e.target).closest(".item-link"));
@@ -55,7 +58,7 @@ class NotesPage {
             let notePage = NotePage.make({store: this.store, uuid, pageTitle});
             window.app.go(notePage);
         }
-        $$(document).on("click", `.page[data-page="notes"] .item-link`, this.noteTapped); 
+        $$(document).on("click", `${PAGESEL} .item-link`, this.noteTapped); 
 
         this.addNote = () => {
             let note = Note.makeWithPieces(
@@ -73,7 +76,45 @@ class NotesPage {
             });
         }
         $$(document).on("click", `.icon-plus.page-notes`, this.addNote);
-        $$(document).on("click", `.page[data-page="notes"] .floating-button`, this.addNote);
+        $$(document).on("click", `${PAGESEL} .floating-button`, this.addNote);
+
+        this.infoTapped = () => {
+            let aboutPage = AboutPage.make();
+            window.app.go(aboutPage);
+        }
+        $$(document).on("click", `.icon-info.page-notes`, this.infoTapped);
+
+        this.editTapped = () => {
+            $$(`.icon-checkmark`).css("display", "inherit");
+            $$(`.icon-pencil`).hide();
+            window.app.sortableOpen(`${PAGESEL} .sortable`);
+        }
+        $$(document).on("click", `.icon-pencil.page-notes`, this.editTapped); 
+
+        this.checkTapped = () => {
+            $$(`.icon-checkmark`).hide();
+            $$(`.icon-pencil`).css("display", "inherit");
+            window.app.sortableClose(`${PAGESEL} .sortable`);
+        }
+        $$(document).on("click", `.icon-checkmark.page-notes`, this.checkTapped); 
+
+        this.listSorted = () => {
+            if (window.app.DEBUG) { console.log ("sorting notes..."); }
+            let listItems = Array.from($$(`${PAGESEL} .sortable li a.item-link`));
+            this.notes.content = listItems.map((a) => 
+                this.notes.content.find(item => 
+                    item.uuid === $$(a).data("uuid")));
+            if (this.list) {
+                this.list.items.forEach((item,idx) => {
+                    if (item.uuid !== this.notes.content[idx].uuid) {
+                        this.list.replaceItem(idx, this.notes.content[idx]);
+                    }
+                });
+            }
+            setTimeout(()=> this.notes.save(), 350);
+        }
+        $$(document).on("sort", `${PAGESEL} .sortable li`, this.listSorted);
+
     }
 
     unwireEventHandlers() {
@@ -81,10 +122,14 @@ class NotesPage {
         this.store.unsubscribe("savedEntity", this);
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
-        $$(document).off("click", `.page[data-page="notes"] .item-link`, this.noteTapped); 
-        $$(document).off("click", `.page[data-page="notes"] .swipeout-delete`, this.noteDeleted);
+        $$(document).off("click", `${PAGESEL} .item-link`, this.noteTapped); 
+        $$(document).off("click", `${PAGESEL} .swipeout-delete`, this.noteDeleted);
         $$(document).off("click", `.icon-plus.page-notes`, this.addNote);
-        $$(document).off("click", `.page[data-page="notes"] .floating-button`, this.addNote);
+        $$(document).off("click", `${PAGESEL} .floating-button`, this.addNote);
+        $$(document).off("click", `.icon-info.page-notes`, this.infoTapped);
+        $$(document).off("click", `.icon-pencil.page-notes`, this.editTapped); 
+        $$(document).off("click", `.icon-checkmark.page-notes`, this.checkTapped); 
+        $$(document).off("sort", `${PAGESEL} .sortable li`, this.listSorted);
     }
 
     init() {
@@ -96,7 +141,7 @@ class NotesPage {
 
     onNotesChanged() {
         if (this.list) {
-            this.list.replaceAllItems(this.notes.content);
+            this.list.replaceAllItems(this.notes.content.map(note => note));
         }
     }
 
@@ -105,14 +150,11 @@ class NotesPage {
         let replaced = false;
         if (modifiedNote) {
             modifiedNote.load().then(() => {
-                Array.from($$(`.page[data-page=notes] li a.item-link`)).forEach(
-                    (a, idx) => {
-                        if ($$(a).data("uuid") === uuid) {
-                            this.list.replaceItem(idx, modifiedNote);
-                            replaced = true;
-                        }
-                    }
-                )
+                this.list.items.forEach((item, idx) => {
+                    if (item.uuid === uuid) {
+                        this.list.replaceItem(idx, modifiedNote);
+                        replaced = true;
+                    }});
                 if (!replaced) {
                     this.list.appendItem(modifiedNote);
                 }
@@ -123,8 +165,10 @@ class NotesPage {
     onStoreRemovedEntity(sender, event, uuid) {
         let removedNoteIdx = this.notes.content.findIndex(note => note.uuid === uuid);
         if (removedNoteIdx > -1) {
+            if (this.list) {
+                this.list.deleteItem(removedNoteIdx);
+            }
             this.notes.removeNote(uuid)
-                .then(() => this.list.deleteItem(removedNoteIdx))
                 .catch(() => {});
         }
     }
@@ -224,7 +268,10 @@ class NotesPage {
 
     onPageInit() {
 
-        this.list = window.app.virtualList(`.page[data-page="notes"] .list-block`, {
+        $$(`.icon-checkmark`).hide();
+        $$(`.icon-pencil`).css("display", "inherit");
+
+        this.list = window.app.virtualList(`${PAGESEL} .list-block`, {
             items: [],
             height: 44 * 2,  // 44 * 4
             template: _listTemplate
@@ -243,6 +290,10 @@ class NotesPage {
             }
         });
 
+    }
+
+    onPageAfterAnimation() {
+        window.app.sortableClose(`${PAGESEL} .sortable`);
     }
 
     static make({store} = {}) {
