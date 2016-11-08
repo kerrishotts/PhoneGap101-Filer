@@ -2,6 +2,7 @@
 const $$ = window.Dom7;
 
 const STORE = require("../constants/store.js");
+const PAGESEL = `.page[data-page="textPieceEditor"]`;
 
 const TextPiece = require("../models/TextPiece.js");
 
@@ -30,6 +31,11 @@ class TextPieceEditorPage {
         this.store.subscribe("savedEntity", this, this.onStoreSavedEntity);
         this.store.subscribe("loadedEntity", this, this.onStoreLoadedEntity);
         this.store.subscribe("removedEntity", this, this.onStoreRemovedEntity);
+
+        this.savePieceOnPause = () => {
+            this.savePiece();
+        }
+        document.addEventListener("pause", this.savePieceOnPause, false);
 
         this.colorTapped = () => {
             window.app.prompt("Enter a Hex or Web color", "Choose color",
@@ -85,6 +91,8 @@ class TextPieceEditorPage {
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
 
+        document.removeEventListener("pause", this.savePieceOnPause, false);
+
         $$(document).off("click", `.icon-eyedropper.page-textPieceEditor`, this.colorTapped); 
         $$(document).off("click", `.icon-bin.page-textPieceEditor`, this.deleteTapped);
         $$(document).off("click", `.navbar .center.piece-title`, this.titleTapped); 
@@ -98,8 +106,18 @@ class TextPieceEditorPage {
         this.unwireEventHandlers();
     }
 
+    savePiece() {
+        let textarea = $$(`${PAGESEL} .piece-content`);
+        let content = textarea[0].value;
+        if (content !== this.textPiece.content) {
+            this.textPiece.dateModified = new Date();
+            this.textPiece.set("content",textarea[0].value);
+            this.textPiece.save();
+        }
+    }
+
     updateTextPieceColor() {
-        $$(`.page[data-page=textPieceEditor] .page-content`).css("color", this.textPiece.color);
+        $$(`${PAGESEL} .page-content`).css("color", this.textPiece.color);
         if (Template7.global.android) {
             $$(`.navbar-inner.page-textPieceEditor`).css("background-color", this.textPiece.color); 
         } else {
@@ -114,13 +132,13 @@ class TextPieceEditorPage {
     onTextPieceChanged() {
         this.updateTextPieceColor();
         // update the editor
-        let textarea = $$(`.page[data-page=textPieceEditor] .piece-content`);
+        let textarea = $$(`${PAGESEL} .piece-content`);
         textarea.text(this.textPiece.content);
         window.app.resizeTextarea(textarea);
     }
 
     focusTextEditor() {
-        let textarea = $$(`.page[data-page=textPieceEditor] .piece-content`);
+        let textarea = $$(`${PAGESEL} .piece-content`);
         textarea.focus();
     }
 
@@ -135,7 +153,7 @@ class TextPieceEditorPage {
 
     makeDefaultTextPiece() {
         let store = this.store;
-        this.textPiece.set("title", "Note Title");
+        this.textPiece.set("title", "Piece Title");
         this.textPiece.set("content", "Tap to edit this piece");
     }
 
@@ -158,13 +176,7 @@ class TextPieceEditorPage {
     }
 
     onPageBack() {
-        let textarea = $$(`.page[data-page=textPieceEditor] .piece-content`);
-        let content = textarea[0].value;
-        if (content !== this.textPiece.content) {
-            this.textPiece.dateModified = new Date();
-            this.textPiece.set("content",textarea[0].value);
-            this.textPiece.save();
-        }
+        this.savePiece();
     }
 
     static make({store, uuid, pageTitle} = {}) {
