@@ -160,16 +160,16 @@ class Entity extends Emitter {
      * 
      * @memberOf Entity
      */
-    load() {
+    load({emit = true} = {}) {
         return this[_store].load(this.uuid).then(data => {
             this._overlay(data);
-            this.emit("changed");
+            if (emit) { this.emit("changed"); }
         });
     }
 
-    remove() {
+    remove({emit = true} = {}) {
         return this[_store].remove(this.uuid).then(() => {
-            this.emit("removed", this.uuid);
+            if (emit) { this.emit("removed", this.uuid); }
         });
     }
 
