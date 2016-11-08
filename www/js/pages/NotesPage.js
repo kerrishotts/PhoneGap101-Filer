@@ -13,14 +13,20 @@ const NotePage = require("./NotePage.js");
 
 let _compiledTemplate;
 
+
+function trimWhitespace(str) {
+    return str.replace(/   /g,"").replace(/  /g,"");
+}
+
 class NotesPage {
 
     constructor({store} = {}) {
         this.name = "notes";
         this.template = _template;
         this.context = {
+            name: this.name,
             pageTitle: "Filer",
-            rightSVGIcons: ["info"]
+            rightSVGIcons: Template7.global.android ? ["info"] : ["info", "plus"]
         }
 
         this.store = store;
@@ -35,9 +41,12 @@ class NotesPage {
         this.store.subscribe("loadedEntity", this, this.onStoreLoadedEntity);
         this.store.subscribe("removedEntity", this, this.onStoreRemovedEntity);
 
-        // TODO: delete
-
-        // TODO: add new note
+        this.noteDeleted = (e) => {
+            let listItem = $$($$(e.target).parent().prev().children("a")[0]);
+            let uuid = listItem.data("uuid");
+            setTimeout(() => this.notes.removeNote(uuid), 350);
+        }
+        $$(document).on("click", `.page[data-page="notes"] .swipeout-delete`, this.noteDeleted);
 
         this.noteTapped = (e) => {
             let listItem = $$($$(e.target).closest(".item-link"));
@@ -47,6 +56,24 @@ class NotesPage {
             window.app.go(notePage);
         }
         $$(document).on("click", `.page[data-page="notes"] .item-link`, this.noteTapped); 
+
+        this.addNote = () => {
+            let note = Note.makeWithPieces(
+                {store: this.store, 
+                 data: {title: "New Note"},
+                        pieces: [TextPiece.make(
+                            {store: this.store, 
+                             data: {title: "Tap to edit",
+                             content: `Tap to edit`}}),
+                        ]});
+            this.notes.content.push(note);
+            this.notes.save().then( () => {
+                let notePage = NotePage.make({store: this.store, uuid:note.uuid, pageTitle:note.title});
+                window.app.go(notePage);
+            });
+        }
+        $$(document).on("click", `.icon-plus.page-notes`, this.addNote);
+        $$(document).on("click", `.page[data-page="notes"] .floating-button`, this.addNote);
     }
 
     unwireEventHandlers() {
@@ -55,8 +82,14 @@ class NotesPage {
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
         $$(document).off("click", `.page[data-page="notes"] .item-link`, this.noteTapped); 
+        $$(document).off("click", `.page[data-page="notes"] .swipeout-delete`, this.noteDeleted);
+        $$(document).off("click", `.icon-plus.page-notes`, this.addNote);
+        $$(document).off("click", `.page[data-page="notes"] .floating-button`, this.addNote);
     }
 
+    init() {
+        this.wireEventHandlers();
+    }
     destroy() {
         this.unwireEventHandlers();
     }
@@ -69,21 +102,31 @@ class NotesPage {
 
     onStoreSavedEntity(sender, event, uuid) {
         let modifiedNote = this.notes.content.find(note => note.uuid === uuid);
+        let replaced = false;
         if (modifiedNote) {
             modifiedNote.load().then(() => {
                 Array.from($$(`.page[data-page=notes] li a.item-link`)).forEach(
                     (a, idx) => {
                         if ($$(a).data("uuid") === uuid) {
                             this.list.replaceItem(idx, modifiedNote);
+                            replaced = true;
                         }
                     }
                 )
+                if (!replaced) {
+                    this.list.appendItem(modifiedNote);
+                }
             });
         }
     }
 
-    onStoreRemovedEntity() {
-
+    onStoreRemovedEntity(sender, event, uuid) {
+        let removedNoteIdx = this.notes.content.findIndex(note => note.uuid === uuid);
+        if (removedNoteIdx > -1) {
+            this.notes.removeNote(uuid)
+                .then(() => this.list.deleteItem(removedNoteIdx))
+                .catch(() => {});
+        }
     }
 
     onStoreLoadedEntity(...args) {
@@ -92,7 +135,7 @@ class NotesPage {
 
     makeDefaultNotes() {
         let store = this.store;
-        console.log("making default notes...");
+        if (window.app.DEBUG) { console.log("making default notes..."); }
         this.notes.set("content", [
             Note.makeWithPieces(
                 {store, 
@@ -100,19 +143,20 @@ class NotesPage {
                         pieces: [TextPiece.make(
                             {store, 
                              data: {title: "What's This?",
-                             content: `You can use this app to store important notes that you need 
-                                       to remember`}}),
+                             content: trimWhitespace(`You can use this app to store important notes that you need 
+                                       to remember.`)}}),
                         ]}),
             Note.makeWithPieces(
                 {store, 
                  data: {title: "About pieces"},
                         pieces: [TextPiece.make(
                             {store, 
-                             data: {title: "Notes are made of pieces",
-                             content: `You can have as many pieces as you need.`}}),
+                             data: {title: "Pieces",
+                             content: trimWhitespace(`Notes are made of pieces.
+                                       You can have as many pieces as you need.`)}}),
                         TextPiece.make(
                             {store, 
-                             data: {title: "This is the second piece",
+                             data: {title: "Second piece",
                              content: `Want more? Just tap the Add icon.`}}),
                         ]}),
             Note.makeWithPieces(
@@ -128,8 +172,8 @@ class NotesPage {
                  data: {title: "Read this!", color: "#800000"},
                         pieces: [TextPiece.make(
                             {store, 
-                             data: {title: "Color can also indicate importance",
-                             content: `But you are free to interpret color as you wish.`}}),
+                             data: {title: "More color",
+                             content: `Color could indicate importance, but you are free to interpret color as you wish.`}}),
                         ]}),
             Note.makeWithPieces(
                 {store, 
@@ -145,11 +189,14 @@ class NotesPage {
                         TextPiece.make(
                             {store, 
                              data: {title: "Hotel",
-                             content: `Hotel Estherea; confirmation #12345678`}}),
+                             content: trimWhitespace(`Hotel Estherea
+                                       Confirmation #12345678`)}}),
                         TextPiece.make(
                             {store, 
                              data: {title: "Flight",
-                             content: `Delta; confirmation #ABCDEFGH; seat 18A`}}),
+                             content: trimWhitespace(`Delta Flight #201
+                                       Confirmation #ABCDEFGH
+                                       Seat 18A`)}}),
                         ]}),
             Note.makeWithPieces(
                 {store, 
@@ -157,22 +204,26 @@ class NotesPage {
                         pieces: [TextPiece.make(
                             {store, 
                              data: {title: "For Mom",
-                             content: `- Coffee maker <br/> - Tablet <br/> - Soft blanket`}}),
+                             content: trimWhitespace(`- Coffee maker
+                                       - Tablet
+                                       - Soft blanket`)}}),
                         TextPiece.make(
                             {store, 
                              data: {title: "For Dad",
-                             content: `- Foot stool <br/> - Huge TV <br/> - Carving tools`}}),
+                             content: trimWhitespace(`- Foot stool 
+                                       - Huge TV 
+                                       - Carving tools`)}}),
                         TextPiece.make(
                             {store, 
                              data: {title: "For Brother",
-                             content: `- Football poster<br/> - Lord of the Rings trilogy`}}),
+                             content: trimWhitespace(`- Football poster 
+                                       - Lord of the Rings trilogy`)}}),
                         ]}),
         ]);
     }
 
     onPageInit() {
 
-        this.wireEventHandlers();
         this.list = window.app.virtualList(`.page[data-page="notes"] .list-block`, {
             items: [],
             height: 44 * 2,  // 44 * 4
@@ -182,16 +233,17 @@ class NotesPage {
         .catch((err) => {
             switch (err.code) {
                 case STORE.CODES.ENTITY_NOT_FOUND:
-                    this.makeDefaultNotes();
-                    return this.notes.save();
-                    break;
+                    if (err.data === "notes") {
+                        this.makeDefaultNotes();
+                        return this.notes.save();
+                        break;
+                    }
                 default:
                     throw new Error(err);
             }
         });
 
     }
-
 
     static make({store} = {}) {
         return new NotesPage({store});
