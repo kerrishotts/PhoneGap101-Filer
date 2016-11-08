@@ -1,24 +1,17 @@
 const EntityStore = require("./store/EntityStore.js");
 const LocalStorageAdapter = require("./store/adapters/LocalStorageAdapter.js");
 
-// Pages
-const NotesPage = require("js/pages/NotesPage.js");
-const NotePage = require("js/pages/NotePage.js");
-const AboutPage = require("js/pages/AboutPage.js");
 
 // Partials
 const partials = {
-    "navbar:ios": require("/html/partials/navbar-ios.html!text"),
-    "navbar:android": require("/html/partials/navbar-android.html!text"),
-    "textPiece": require("/html/partials/textPiece.html!text")
+    "navbar:ios": require("../html/partials/navbar-ios.html!text"),
+    "navbar:android": require("../html/partials/navbar-android.html!text"),
+    "textPiece": require("../html/partials/textPiece.html!text")
 };
 
-// Page templates
-const templates = {
-    notesPage: require("/html/pages/notes.html!text"),
-    notePage: require("/html/pages/note.html!text")
-};
-
+const helpers = {
+    "render_piece": require("./helpers/render_piece.js"),
+}
 
 // Determine theme depending on device
 var isAndroid = Framework7.prototype.device.android === true;
@@ -41,10 +34,21 @@ Template7.global = {
 };
 
 //
+// Register all helpers
+for (let helper of Object.keys(helpers)) {
+    Template7.registerHelper(helper, helpers[helper]);
+}
+
+//
 // register all the partials that our templates will need
 for (let partial of Object.keys(partials)) {
     Template7.registerPartial(partial, partials[partial]);
 }
+
+// Pages
+const NotesPage = require("./pages/NotesPage.js");
+const NotePage = require("./pages/NotePage.js");
+const AboutPage = require("./pages/AboutPage.js");
 
 // switch app style based on device OS
 // copied from: https://framework7.io/tutorials/maintain-both-ios-and-material-themes-in-single-app.html
@@ -112,22 +116,27 @@ function startApp() {
 }
 
 app.go = function (page, {animate = true} = {}) {
+    if (page.init) {
+        page.init.call(page);
+    }
     let pageCallbacks = {};
     ["onPageInit", "onPageBeforeInit", "onPageReinit", "onPageBeforeAnimation", 
      "onPageAfterAnimation", "onPageBeforeRemove", "onPageBack", "onPageAfterBack"].forEach(
          (pageCallback) => {
              pageCallbacks[pageCallback] = window.app[pageCallback](page.name, (...args) => {
                  if (page[pageCallback]) {
+                    if (app.DEBUG) {console.log("calling", pageCallback, page.name);}
                     page[pageCallback].apply(page, args);
                  }
              });
          }
     );
-    let onPageBeforeRemove = window.app.onPageBeforeRemove(page.name, () => {
+    let removeHandler = window.app.onPageAfterBack(page.name, () => {
         for (let pageCallback of Object.keys(pageCallbacks)) {
+            if (app.DEBUG) { console.log("Removing", page.name, pageCallback); }
             pageCallbacks[pageCallback].remove();
         }
-        onPageBeforeRemove.remove();
+        removeHandler.remove();
         if (page.destroy) {
             page.destroy.call(page);
         }
@@ -143,6 +152,8 @@ app.go = function (page, {animate = true} = {}) {
 app.goBack = function () {
     app.mainView.router.back();
 }
+
+app.DEBUG = true;
  
 
 module.exports = app;
