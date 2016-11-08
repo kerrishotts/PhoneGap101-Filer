@@ -3,6 +3,8 @@ const $$ = window.Dom7;
 const STORE = require("../constants/store.js");
 const PIECE = require("../constants/piece.js");
 
+const PAGESEL = `.page[data-page="note"]`;
+
 const Note = require("../models/Note.js");
 const TextPiece = require("../models/TextPiece.js");
 
@@ -42,7 +44,7 @@ class NotePage {
             $$(`.icon-bin`).css("display", "inherit");
             $$(`.icon-pencil`).hide();
             $$(`.icon-eyedropper`).hide();
-            window.app.sortableToggle(".sortable");
+            window.app.sortableOpen(`${PAGESEL} .sortable`);
         }
         $$(document).on("click", `.icon-pencil.page-note`, this.editTapped); 
 
@@ -51,7 +53,7 @@ class NotePage {
             $$(`.icon-bin`).hide();
             $$(`.icon-pencil`).css("display", "inherit");
             $$(`.icon-eyedropper`).css("display", "inherit");
-            window.app.sortableToggle(".sortable");
+            window.app.sortableClose(`${PAGESEL} .sortable`);
         }
         $$(document).on("click", `.icon-checkmark.page-note`, this.checkTapped); 
 
@@ -91,14 +93,14 @@ class NotePage {
             let piecePage = PieceEditorPageFactory.make(itemType,{store:this.store, uuid, pageTitle});
             window.app.go(piecePage);
         }
-        $$(document).on("click", `.page[data-page="note"] .item-link`, this.pieceTapped); 
+        $$(document).on("click", `${PAGESEL} .item-link`, this.pieceTapped); 
 
         this.pieceDeleted = (e) => {
             let listItem = $$($$(e.target).parent().prev().children("a")[0]);
             let uuid = listItem.data("uuid");
             setTimeout(() => this.note.removePiece(uuid), 350);
         }
-        $$(document).on("click", `.page[data-page="note"] .swipeout-delete`, this.pieceDeleted);
+        $$(document).on("click", `${PAGESEL} .swipeout-delete`, this.pieceDeleted);
 
         this.deleteTapped = () => {
             window.app.modal({
@@ -126,23 +128,20 @@ class NotePage {
                 window.app.go(piecePage);
             });
         }
-        $$(document).on("click", `.page[data-page="note"] a.add-piece`, this.addPiece);
-        $$(document).on("click", `.page[data-page="note"] .floating-button`, this.addPiece);
+        $$(document).on("click", `${PAGESEL} a.add-piece`, this.addPiece);
+        $$(document).on("click", `${PAGESEL} .floating-button`, this.addPiece);
 
         this.listSorted = () => {
-            let listItems = Array.from($$(`.sortable li a.item-link`));
-            this.note.content = listItems.map((a) => {
-                let uuid = $$(a).data("uuid");
-                for (let piece of this.note.content) {
-                    if (piece.uuid === uuid) {
-                        return piece;
-                    }
-                }
-            });
+            if (window.app.DEBUG) { console.log ("sorting note pieces..."); }
+
+            let listItems = Array.from($$(`${PAGESEL} .sortable li a.item-link`));
+            this.note.content = listItems.map((a) => 
+                this.note.content.find(item => 
+                    item.uuid === $$(a).data("uuid")));
             this.note.dateModified = new Date();
             this.note.save();
         }
-        $$(document).on("sort", `.sortable li`, this.listSorted);
+        $$(document).on("sort", `${PAGESEL} .sortable li`, this.listSorted);
 
     }
 
@@ -157,11 +156,11 @@ class NotePage {
         $$(document).off("click", `.icon-eyedropper.page-note`, this.colorTapped); 
         $$(document).off("click", `.navbar .center.note-title`, this.titleTapped); 
         $$(document).off("click", `.icon-bin.page-note`, this.deleteTapped); 
-        $$(document).off("sort", `.sortable li`, this.listSorted);
-        $$(document).off("click", `.page[data-page="note"] .item-link`, this.pieceTapped); 
-        $$(document).off("click", `.page[data-page="note"] .swipeout-delete`, this.pieceDeleted);
-        $$(document).off("click", `.page[data-page="note"] a.add-piece`, this.addPiece);
-        $$(document).off("click", `.page[data-page="note"] .floating-button`, this.addPiece);
+        $$(document).off("sort", `${PAGESEL} .sortable li`, this.listSorted);
+        $$(document).off("click", `${PAGESEL} .item-link`, this.pieceTapped); 
+        $$(document).off("click", `${PAGESEL} .swipeout-delete`, this.pieceDeleted);
+        $$(document).off("click", `${PAGESEL} a.add-piece`, this.addPiece);
+        $$(document).off("click", `${PAGESEL} .floating-button`, this.addPiece);
     }
 
     init() {
@@ -172,7 +171,7 @@ class NotePage {
     }
 
     updateNoteColor() {
-        $$(`.page[data-page=note] .page-content`).css("color", this.note.color);
+        $$(`${PAGESEL} .page-content`).css("color", this.note.color);
         if (Template7.global.android) {
             $$(`.navbar-inner.page-note`).css("background-color", this.note.color); 
         } else {
@@ -186,7 +185,7 @@ class NotePage {
 
     onNoteChanged() {
         this.updateNoteColor();
-        $$(`.page[data-page=note] .list-block.sortable ul`).html(this.context.renderPieces());
+        $$(`${PAGESEL} .list-block.sortable ul`).html(this.context.renderPieces());
     }
 
     onStoreSavedEntity(sender, event, uuid) {
@@ -221,6 +220,9 @@ class NotePage {
         $$(`.icon-checkmark`).hide();
         $$(`.icon-bin`).hide();
 
+        $$(`.icon-eyedropper`).css("display", "inherit");
+        $$(`.icon-pencil`).css("display", "inherit");
+
         this.note.load()
         .catch((err) => {
             switch (err.code) {
@@ -233,6 +235,10 @@ class NotePage {
                     throw new Error(err);
             }
         });
+    }
+
+    onPageAfterAnimation() {
+        window.app.sortableClose(`${PAGESEL} .sortable`);
     }
 
     static make({store, uuid, pageTitle} = {}) {
