@@ -1,9 +1,12 @@
 const $$ = window.Dom7;
 
 const STORE = require("../constants/store.js");
+const PIECE = require("../constants/piece.js");
 
 const Note = require("../models/Note.js");
 const TextPiece = require("../models/TextPiece.js");
+
+const PieceEditorPageFactory = require("../factories/PieceEditorPageFactory.js");
 
 const _template = Template7.compile(require("../../html/pages/note.html!text"));
 const _listTemplate = Template7.compile(require("../../html/templates/noteListItem.html!text"))
@@ -16,6 +19,7 @@ class NotePage {
         this.name = "note";
         this.template = _template;
         this.context = {
+            name: this.name,
             pageTitle: pageTitle || "Edit Note",
             rightSVGIcons: ["eyedropper", "bin", "checkmark", "pencil"],
             centerClass: "note-title",
@@ -40,7 +44,7 @@ class NotePage {
             $$(`.icon-eyedropper`).hide();
             window.app.sortableToggle(".sortable");
         }
-        $$(document).on("click", `.icon-pencil`, this.editTapped); 
+        $$(document).on("click", `.icon-pencil.page-note`, this.editTapped); 
 
         this.checkTapped = () => {
             $$(`.icon-checkmark`).hide();
@@ -49,7 +53,7 @@ class NotePage {
             $$(`.icon-eyedropper`).css("display", "inherit");
             window.app.sortableToggle(".sortable");
         }
-        $$(document).on("click", `.icon-checkmark`, this.checkTapped); 
+        $$(document).on("click", `.icon-checkmark.page-note`, this.checkTapped); 
 
         this.colorTapped = () => {
             window.app.prompt("Enter a Hex or Web color", "Choose color",
@@ -63,7 +67,7 @@ class NotePage {
                 // CANCEL tapped; do nothing.
             });
         }
-        $$(document).on("click", `.icon-eyedropper`, this.colorTapped); 
+        $$(document).on("click", `.icon-eyedropper.page-note`, this.colorTapped); 
 
         this.titleTapped = () => {
             window.app.prompt("Enter your note's title", "Choose title",
@@ -79,9 +83,51 @@ class NotePage {
         }
         $$(document).on("click", `.navbar .center.note-title`, this.titleTapped); 
 
-        // TODO: delete
+        this.pieceTapped = (e) => {
+            let listItem = $$($$(e.target).closest(".item-link"));
+            let uuid = listItem.data("uuid");
+            let pageTitle = listItem.data("title");
+            let itemType = listItem.data("type");
+            let piecePage = PieceEditorPageFactory.make(itemType,{store:this.store, uuid, pageTitle});
+            window.app.go(piecePage);
+        }
+        $$(document).on("click", `.page[data-page="note"] .item-link`, this.pieceTapped); 
 
-        // TODO: add item
+        this.pieceDeleted = (e) => {
+            let listItem = $$($$(e.target).parent().prev().children("a")[0]);
+            let uuid = listItem.data("uuid");
+            setTimeout(() => this.note.removePiece(uuid), 350);
+        }
+        $$(document).on("click", `.page[data-page="note"] .swipeout-delete`, this.pieceDeleted);
+
+        this.deleteTapped = () => {
+            window.app.modal({
+                title: "Really delete?",
+                text: "This action cannot be undone",
+                buttons: [
+                    {text: "Cancel"},
+                    {text: "Delete", bold: true,
+                     onClick: () => {
+                         this.note.remove()
+                         .then( () => window.app.goBack());
+                     }}
+                ]
+            });
+        }
+        $$(document).on("click", `.icon-bin.page-note`, this.deleteTapped); 
+
+        this.addPiece = () => {
+            let piece = TextPiece.make({store: this.store, 
+                                        data: {title: "Tap to edit",
+                                               content: `Tap to edit`}});
+            this.note.content.push(piece);
+            this.note.save().then( () => {
+                let piecePage = PieceEditorPageFactory.make(PIECE.TEXTPIECETYPE,{store:this.store, uuid: piece.uuid, pageTitle: piece.title});
+                window.app.go(piecePage);
+            });
+        }
+        $$(document).on("click", `.page[data-page="note"] a.add-piece`, this.addPiece);
+        $$(document).on("click", `.page[data-page="note"] .floating-button`, this.addPiece);
 
         this.listSorted = () => {
             let listItems = Array.from($$(`.sortable li a.item-link`));
@@ -106,19 +152,32 @@ class NotePage {
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
 
-        $$(document).off("click", `.icon-pencil`, this.editTapped); 
-        $$(document).off("click", `.icon-checkmark`, this.checkTapped); 
-        $$(document).off("click", `.icon-eyedropper`, this.colorTapped); 
+        $$(document).off("click", `.icon-pencil.page-note`, this.editTapped); 
+        $$(document).off("click", `.icon-checkmark.page-note`, this.checkTapped); 
+        $$(document).off("click", `.icon-eyedropper.page-note`, this.colorTapped); 
         $$(document).off("click", `.navbar .center.note-title`, this.titleTapped); 
+        $$(document).off("click", `.icon-bin.page-note`, this.deleteTapped); 
         $$(document).off("sort", `.sortable li`, this.listSorted);
+        $$(document).off("click", `.page[data-page="note"] .item-link`, this.pieceTapped); 
+        $$(document).off("click", `.page[data-page="note"] .swipeout-delete`, this.pieceDeleted);
+        $$(document).off("click", `.page[data-page="note"] a.add-piece`, this.addPiece);
+        $$(document).off("click", `.page[data-page="note"] .floating-button`, this.addPiece);
     }
 
+    init() {
+        this.wireEventHandlers();
+    }
     destroy() {
         this.unwireEventHandlers();
     }
 
     updateNoteColor() {
         $$(`.page[data-page=note] .page-content`).css("color", this.note.color);
+        if (Template7.global.android) {
+            $$(`.navbar-inner.page-note`).css("background-color", this.note.color); 
+        } else {
+            $$(`.navbar .center.note-title`).css("color", this.note.color); 
+        }
     }
 
     updateNoteTitle() {
@@ -130,10 +189,19 @@ class NotePage {
         $$(`.page[data-page=note] .list-block.sortable ul`).html(this.context.renderPieces());
     }
 
-    onStoreSavedEntity() {
+    onStoreSavedEntity(sender, event, uuid) {
+        let modifiedPiece = this.note.content.find(item => item.uuid === uuid);
+        if (modifiedPiece) {
+            modifiedPiece.load().then(() => {
+                this.onNoteChanged();
+            });
+        }
     }
 
-    onStoreRemovedEntity() {
+    onStoreRemovedEntity(sender, event, uuid) {
+        this.note.removePiece(uuid)
+            .then(() => this.onNoteChanged)
+            .catch(() => {});
     }
 
     onStoreLoadedEntity(...args) {
@@ -148,7 +216,6 @@ class NotePage {
     }
 
     onPageInit() {
-        this.wireEventHandlers();
 
         // hide some of our icons that we don't initially want visible
         $$(`.icon-checkmark`).hide();
@@ -158,8 +225,10 @@ class NotePage {
         .catch((err) => {
             switch (err.code) {
                 case STORE.CODES.ENTITY_NOT_FOUND:
-                    this.makeDefaultNote();
-                    break;
+                    if (err.data === this.note.uuid) {
+                        this.makeDefaultNote();
+                        break;
+                    }
                 default:
                     throw new Error(err);
             }
