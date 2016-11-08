@@ -34,6 +34,14 @@ class Notes extends Entity {
     });
   }
 
+  /**
+   * Remove the note from our collection.
+   * 
+   * @param {string|Object} noteOrUUID
+   * @returns
+   * 
+   * @memberOf Notes
+   */
   removeNote(noteOrUUID) {
     let uuid = noteOrUUID;
     if (uuid.uuid) { uuid = uuid.uuid; } 
@@ -46,6 +54,7 @@ class Notes extends Entity {
       return Promise.reject();
     }
   }
+
   static make({data, store} = {}) {
     return new Notes({data, store});
   }
