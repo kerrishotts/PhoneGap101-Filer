@@ -7,6 +7,15 @@
                 <i class="icon icon-back"></i>
             </a>
             {{/if}}
+            {{#each leftSVGIcons}}
+            <a href="#" class="link icon-only icon-{{this}} page-{{@root.name}}">
+                <i class="icon icon-svg">
+                    <svg viewBox="0 0 32 32">
+                        <use xlink:href="#icon-{{this}}"></use>
+                    </svg>
+                </i>
+            </a>
+            {{/each}}
         </div>
         <div class="center {{#if centerClass}}{{centerClass}}{{/if}}">
             {{pageTitle}}
