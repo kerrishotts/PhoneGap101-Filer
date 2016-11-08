@@ -147,6 +147,16 @@ function startApp() {
             $$('.view-main > .navbar').remove();
         }
 
+        document.addEventListener("backbutton", (e) => {
+            let numPagesInDOM = $$(".page").length;
+            if (numPagesInDOM>1) {
+                window.app.goBack();
+            } else {
+                navigator.app.exitApp();
+            }
+            e.preventDefault();
+        }, false);
+
     }, 100);
 }
 
