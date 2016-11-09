@@ -1,8 +1,8 @@
 const PIECE = require("../constants/piece.js");
-const textPiecePartial = require("../../html/partials/textPiece.html!text");
+const textPieceTemplate = require("../../html/templates/textPiece.html!text");
 
 const compiledPieces = {
-    textPiece: Template7.compile(textPiecePartial)
+    textPiece: Template7.compile(textPieceTemplate)
 };
 
 function render_piece() {

@@ -5,8 +5,7 @@ const LocalStorageAdapter = require("./store/adapters/LocalStorageAdapter.js");
 // Partials
 const partials = {
     "navbar:ios": require("../html/partials/navbar-ios.html!text"),
-    "navbar:android": require("../html/partials/navbar-android.html!text"),
-    "textPiece": require("../html/partials/textPiece.html!text")
+    "navbar:android": require("../html/partials/navbar-android.html!text")
 };
 
 const helpers = {
