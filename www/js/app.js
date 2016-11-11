@@ -142,7 +142,6 @@ function startApp() {
         if (isAndroid) {
             // We need to adjust the DOM slightly if we're running on Android
             $$('.view.navbar-through').removeClass('navbar-through').addClass('navbar-fixed');
-            //$$('.view .navbar').prependTo('.view .page');
             $$('.view-main > .navbar').remove();
         }
 
