@@ -51,8 +51,8 @@ class Note extends Entity {
   remove() {
     // remove ourself and then also remove all our pieces
     return super.remove().then( () => {
-      this.content=[];
-      return Promise.all(this.content.map((item) => item.remove()));
+      return Promise.all(this.content.map((item) => item.remove()))
+      .then( () => { this.content=[]; } );
     });
   }
 
