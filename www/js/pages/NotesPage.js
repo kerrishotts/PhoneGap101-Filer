@@ -101,26 +101,17 @@ class NotesPage {
         this.listSorted = (e) => {
             if (window.app.DEBUG) { console.log ("sorting notes..."); }
 
-            // get the first unique identifier present in the DOM (may not be first in the list)
-            let listItemUUID = $$($$($$(`${PAGESEL} .sortable li.swipeout`)[0]).find(".item-link")[0]).data("uuid");
-            // get all items as well
-            let listItems = $$(`${PAGESEL} .sortable li.swipeout a.item-link`);
+            let listItems = Array.from($$(`${PAGESEL} .sortable li.swipeout a.item-link`));
+            this.notes.content = this.notes.content.map((note, idx) => {
+                if (idx < this.list.currentFromIndex || idx > this.list.currentToIndex) {
+                    // if the index is outside the visible elements, return the item unchanged
+                    return note;
+                } else {
+                    // otherwise, return the item matching the UUID present in the DOM
+                    return this.notes.content.find(item => item.uuid === $$(listItems[idx - this.list.currentFromIndex]).data("uuid"));
+                }
+            });
 
-            // find where this first list item starts in our array of notes
-            let startListItemIdx = this.notes.content.findIndex(item => item.uuid == listItemUUID);
-            let endListItemIdx = startListItemIdx + (listItems.length - 1);
-            if (startListItemIdx > -1) {
-                // iterate over all our notes
-                this.notes.content = this.notes.content.map((item, idx) => {
-                    if (idx < startListItemIdx || idx > endListItemIdx) {
-                        // if the index is outside the visible elements, return the item unchanged
-                        return item;
-                    } else {
-                        // otherwise, return the item matching the UUID present in the DOM
-                        return this.notes.content.find(item => item.uuid === $$(listItems[idx - startListItemIdx]).data("uuid"));
-                    }
-                })
-            }
             // tell the virtual list the new order
             this.list.items.forEach((item,idx) => {
                 if (item.uuid !== this.notes.content[idx].uuid) {
