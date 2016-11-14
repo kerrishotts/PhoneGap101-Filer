@@ -61,7 +61,6 @@ class TextPieceEditorPage {
                      onClick: () => {
                          this.textPiece.remove()
                          .then( () => window.app.goBack());
-                         //.then( () => setTimeout(window.app.goBack,100));
                      }}
                 ]
             });
@@ -134,7 +133,6 @@ class TextPieceEditorPage {
         // update the editor
         let textarea = $$(`${PAGESEL} .piece-content`);
         textarea.text(this.textPiece.content);
-        window.app.resizeTextarea(textarea);
     }
 
     focusTextEditor() {
@@ -152,7 +150,6 @@ class TextPieceEditorPage {
     }
 
     makeDefaultTextPiece() {
-        let store = this.store;
         this.textPiece.set("title", "Piece Title");
         this.textPiece.set("content", "Tap to edit this piece");
     }
