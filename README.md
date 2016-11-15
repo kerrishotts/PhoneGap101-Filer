@@ -19,7 +19,7 @@ You can play with the Android version of the app at: https://appetize.io/app/ger
 Alternatively you can use an online version with a specific theme (below) using your browser (ES2015 required). Swipe gestures a bit fussy on desktops unless you enable touch-only gestures. However the core functionality does work.
 
 * [Android theme](https://photokandy.com/supporting/videos/phonegap-101/?android)
-* [iOS theme](https://photokandy.com/supporting/videos/phonegap-101/?android)
+* [iOS theme](https://photokandy.com/supporting/videos/phonegap-101/?ios)
 
 > Note: If this is your first time loading the app, give it a couple seconds to start up, especially on slower connections.
 
