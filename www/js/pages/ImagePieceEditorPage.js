@@ -1,25 +1,25 @@
 
 const $$ = window.Dom7;
 
-const PAGESEL = `.page[data-page="textPieceEditor"]`;
+const PAGESEL = `.page[data-page="imagePieceEditor"]`;
 
-const TextPiece = require("../models/TextPiece.js");
+const ImagePiece = require("../models/ImagePiece.js");
 const PieceEditorPage = require("./PieceEditorPage.js");
 
-const _template = Template7.compile(require("../../html/pages/textPieceEditor.html!text"));
+const _template = Template7.compile(require("../../html/pages/imagePieceEditor.html!text"));
 
-class TextPieceEditorPage extends PieceEditorPage {
+class ImagePieceEditorPage extends PieceEditorPage {
 
     constructor({store, uuid, pageTitle} = {}) {
-        super({store, uuid, pageTitle, name: "textPieceEditor", pageSelector: "textPieceEditor", Piece: TextPiece, template: _template});
-        this.piece = TextPiece.make({store, data: {uuid}});
+        super({store, uuid, pageTitle, name: "imagePieceEditor", pageSelector: "imagePieceEditor", Piece: ImagePiece, template: _template});
+        this.piece = ImagePiece.make({store, data: {uuid}});
     }
 
     savePiece() {
         let textarea = $$(`${PAGESEL} .piece-content`);
         let content = textarea[0].value;
-        if (content !== this.piece.content) {
-            this.piece.set("content",textarea[0].value);
+        if (content !== this.textPiece.content) {
+            this.textPiece.set("content",textarea[0].value);
             super.savePiece();
         }
     }
@@ -28,7 +28,7 @@ class TextPieceEditorPage extends PieceEditorPage {
         super.onPieceChanged();
         // update the editor
         let textarea = $$(`${PAGESEL} .piece-content`);
-        textarea.text(this.piece.content);
+        textarea.text(this.textPiece.content);
     }
 
     focusTextEditor() {
@@ -47,9 +47,9 @@ class TextPieceEditorPage extends PieceEditorPage {
     }
 
     static make({store, uuid, pageTitle} = {}) {
-        return new TextPieceEditorPage({store, uuid, pageTitle});
+        return new ImagePieceEditorPage({store, uuid, pageTitle});
     }
 
 }
 
-module.exports = TextPieceEditorPage;
+module.exports = ImagePieceEditorPage;

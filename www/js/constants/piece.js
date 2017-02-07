@@ -1,4 +1,5 @@
 module.exports = {
     PIECETYPE: "Piece",
-    TEXTPIECETYPE: "TextPiece"
+    TEXTPIECETYPE: "TextPiece",
+    IMAGEPIECETYPE: "ImagePiece"
 };

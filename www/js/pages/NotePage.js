@@ -6,14 +6,12 @@ const PIECE = require("../constants/piece.js");
 const PAGESEL = `.page[data-page="note"]`;
 
 const Note = require("../models/Note.js");
-const TextPiece = require("../models/TextPiece.js");
 
+const PieceFactory = require("../factories/PieceFactory.js");
 const PieceEditorPageFactory = require("../factories/PieceEditorPageFactory.js");
 
 const _template = Template7.compile(require("../../html/pages/note.html!text"));
 const _listTemplate = Template7.compile(require("../../html/templates/noteListItem.html!text"))
-
-let _compiledTemplate;
 
 class NotePage {
 
@@ -118,18 +116,22 @@ class NotePage {
         }
         $$(document).on("click", `.icon-bin.page-note`, this.deleteTapped); 
 
-        this.addPiece = () => {
-            let piece = TextPiece.make({store: this.store, 
-                                        data: {title: "Tap to edit",
-                                               content: `Tap to edit`}});
+        this.addPiece = (PIECETYPE, data) => {
+            let piece = PieceFactory.make(PIECETYPE, {store: this.store, data});
             this.note.content.push(piece);
             this.note.save().then( () => {
-                let piecePage = PieceEditorPageFactory.make(PIECE.TEXTPIECETYPE,{store:this.store, uuid: piece.uuid, pageTitle: piece.title});
+                let piecePage = PieceEditorPageFactory.make(PIECETYPE,{store:this.store, uuid: piece.uuid, pageTitle: piece.title});
                 window.app.go(piecePage);
             });
         }
-        $$(document).on("click", `${PAGESEL} a.add-piece`, this.addPiece);
-        $$(document).on("click", `${PAGESEL} .floating-button`, this.addPiece);
+        this.addTextPiece = () => {
+            this.addPiece(PIECE.TEXTPIECETYPE, {title: "Tap to edit", content: "Tap to edit"});
+        }
+        this.addImagePiece = () => {
+            this.addPiece(PIECE.IMAGEPIECETYPE, {title: "Edit caption", content: "Take a picture"});
+        }
+        $$(document).on("click", `${PAGESEL} a.add-text-piece`, this.addTextPiece);
+        $$(document).on("click", `${PAGESEL} a.add-image-piece`, this.addImagePiece);
 
         this.listSorted = () => {
             if (window.app.DEBUG) { console.log ("sorting note pieces..."); }
@@ -159,8 +161,8 @@ class NotePage {
         $$(document).off("sort", `${PAGESEL} .sortable li`, this.listSorted);
         $$(document).off("click", `${PAGESEL} .item-link`, this.pieceTapped); 
         $$(document).off("click", `${PAGESEL} .swipeout-delete`, this.pieceDeleted);
-        $$(document).off("click", `${PAGESEL} a.add-piece`, this.addPiece);
-        $$(document).off("click", `${PAGESEL} .floating-button`, this.addPiece);
+        $$(document).off("click", `${PAGESEL} a.add-text-piece`, this.addTextPiece);
+        $$(document).off("click", `${PAGESEL} a.add-image-piece`, this.addImagePiece);
     }
 
     init() {
@@ -210,7 +212,7 @@ class NotePage {
         let store = this.store;
         this.note.set("title", "Note Title");
         this.note.set("content", [
-            TextPiece.make({store, data: {title: "Tap to edit this piece"}})
+            PieceFactory.make(PIECE.TEXTPIECETYPE, {store, data: {title: "Tap to edit this piece"}})
         ]);
     }
 

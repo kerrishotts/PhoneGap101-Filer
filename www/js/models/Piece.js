@@ -11,6 +11,7 @@ class Piece extends Entity {
     this.color =        (data && data.color)        || "inherit";
     this.dateCreated =  (data && data.dateCreated)  || Date.now();
     this.dateModified = (data && data.dateModified) || Date.now();
+    this.mediaURI =     (data && data.mediaURI)     || "";
     
     if (!(this.dateCreated instanceof Date)) {
       this.dateCreated = new Date(this.dateCreated);

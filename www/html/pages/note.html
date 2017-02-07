@@ -2,9 +2,28 @@
 <div data-page="note" class="page">
 {{> navbar:android backText="Back"}}
 {{#if @global.android}}
-    <a href="#" class="floating-button color-pink">
-        <i class="icon icon-plus"></i>
-    </a>
+    <div class="speed-dial">
+        <a href="#" class="floating-button color-pink">
+            <i class="icon icon-plus"></i>
+            <i class="icon icon-close"></i>
+        </a>
+        <div class="speed-dial-buttons">
+            <a href="#" class="add-text-piece">
+                <i class="icon icon-svg">
+                    <svg viewBox="0 0 32 32">
+                        <use xlink:href="#icon-font-size"></use>
+                    </svg>
+                </i>
+            </a>
+            <a href="#" class="add-image-piece">
+                <i class="icon icon-svg">
+                    <svg viewBox="0 0 32 32">
+                        <use xlink:href="#icon-image"></use>
+                    </svg>
+                </i>
+            </a>
+        </div>
+    </div>
 {{/if}}
     <div class="page-content">
         <div class="list-block sortable">
@@ -16,7 +35,8 @@
         <div class="list-block">
             <ul>
                 <li>
-                    <a href="#" class="item-link list-button add-piece">Add Text</a>
+                    <a href="#" class="item-link list-button add-text-piece">Add Text</a>
+                    <a href="#" class="item-link list-button add-image-piece">Add Image</a>
                 </li>
             </ul>
         </div>
