@@ -5,3 +5,4 @@ plugins
 hooks
 .git
 .vscode
+build.json
