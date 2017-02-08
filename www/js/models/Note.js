@@ -110,11 +110,16 @@ class Note extends Entity {
    * @memberOf Note
    */
   getThumbnailImage() {
-    let firstImage = this.content.map(piece => piece.getImageContent())[0];
+    let firstImage = this.content.reduce((ret, piece) => {
+      if (ret) {
+        return ret;
+      }
+      return piece.getImageContent() ? piece.getImageContent() : ret;
+    }, null);
     if (!firstImage) {
       return `<svg viewbox="0 0 32 32"><use xlink:href="#icon-file-text2"></use></svg>`;
     } else {
-      return `<img src="${firstImage}"/>`;
+      return firstImage;
     }
   }
   

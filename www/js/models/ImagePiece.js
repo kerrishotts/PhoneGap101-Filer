@@ -1,3 +1,4 @@
+/*global device*/
 const Piece = require("./Piece.js");
 const PIECE = require("../constants/piece.js");
 
@@ -8,7 +9,13 @@ class ImagePiece extends Piece {
   }
 
   getImageContent() {
-    return this.mediaURI;
+    return this.renderImageContent(this.mediaURI === "" ? {
+      type: "icon",
+      image: "camera"
+    } : {
+      type: /*device.platform === "browser" ?*/ "base64" /*: "image"*/, // base64 for now, although not ideal
+      image: this.mediaURI
+    });
   }
  
   static make({data, store} = {}) {

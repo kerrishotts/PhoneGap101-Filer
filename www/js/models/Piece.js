@@ -48,7 +48,12 @@ class Piece extends Entity {
   }
 
   /**
-   * Return a suitable image. In this case, NULL.
+   * Return a suitable image. In this case, NULL. The return should look like this:
+   * 
+   * {
+   *     type: "icon|image|base64",
+   *     image: "icon-name|path-to-file|base64-encoded JPEG"
+   * }
    * 
    * @returns {any}
    * 
@@ -56,6 +61,18 @@ class Piece extends Entity {
    */
   getImageContent() {
     return null;
+  }
+
+  renderImageContent({type, image} = {}) {
+    switch (type) {
+      case "icon":
+        return `<svg viewbox="0 0 32 32"><use xlink:href="#icon-${image}"></use></svg>`;
+      case "base64":
+        return `<img src="data:image/jpeg;base64,${image}"/>`;
+      case "image":
+      default:
+        return `<img src="${image}"/>`;
+    } 
   }
 
   static make({data, store} = {}) {

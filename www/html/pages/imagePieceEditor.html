@@ -1,9 +1,26 @@
 {{> navbar:ios backText="Back"}}
-<div data-page="textPieceEditor" class="page">
+<div data-page="imagePieceEditor" class="page">
   {{> navbar:android backText="Back"}}
   <div class="page-content">
     <div class="list-block">
       <ul>
+        <li class="align-top edit-image">
+          <div class="item-content">
+            <div class="item-inner">
+              <div class="item-image">
+              </div>
+              <div class="image-controls">
+                <a href="#" class="link icon-only icon-camera page-imagePieceEditor">
+                    <i class="icon icon-svg">
+                        <svg viewBox="0 0 32 32">
+                            <use xlink:href="#icon-camera"></use>
+                        </svg>
+                    </i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </li>   
         <li class="align-top">
           <div class="item-content">
             <div class="item-inner">

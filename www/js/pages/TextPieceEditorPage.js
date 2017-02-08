@@ -36,9 +36,9 @@ class TextPieceEditorPage extends PieceEditorPage {
         textarea.focus();
     }
 
-    makeDefaultTextPiece() {
+    makeDefaultPiece() {
         this.piece.set("title", "Piece Title");
-        this.piece.set("content", "Tap to edit this piece");
+        this.piece.set("content", "Tap to edit text");
     }
 
     onPageAfterAnimation() {

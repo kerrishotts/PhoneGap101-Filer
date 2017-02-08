@@ -1,0 +1,12 @@
+.page[data-page=imagePieceEditor] .edit-image .item-inner {
+    flex-direction: column;
+}
+
+.page[data-page=imagePieceEditor] .edit-image .item-inner .item-image,
+.page[data-page=imagePieceEditor] .edit-image .item-inner .image-controls {
+    margin: auto auto;
+}
+
+.page[data-page=imagePieceEditor] .edit-image .item-inner .item-image img {
+    width: 90vw;
+}

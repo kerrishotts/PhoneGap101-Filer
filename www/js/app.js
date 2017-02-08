@@ -1,6 +1,7 @@
+/* global device */
+
 const EntityStore = require("./store/EntityStore.js");
 const LocalStorageAdapter = require("./store/adapters/LocalStorageAdapter.js");
-
 
 // Partials
 const partials = {
@@ -49,6 +50,9 @@ const NotesPage = require("./pages/NotesPage.js");
 const NotePage = require("./pages/NotePage.js");
 const AboutPage = require("./pages/AboutPage.js");
 
+// Need ImagePiece so we can deal with Android's life cycle and camera
+const ImagePiece = require("./models/ImagePiece.js");
+
 // switch app style based on device OS
 // copied from: https://framework7.io/tutorials/maintain-both-ios-and-material-themes-in-single-app.html
 (function () {
@@ -68,6 +72,7 @@ const AboutPage = require("./pages/AboutPage.js");
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/notesPage.css">
     <link rel="stylesheet" href="css/notePage.css">
+    <link rel="stylesheet" href="css/imagePieceEditorPage.css">
     `);
 })();
 
@@ -154,6 +159,25 @@ function startApp() {
             }
             e.preventDefault();
         }, false);
+
+        document.addEventListener("resume", (e) => {
+            if (device.platform === "Android") {
+                let cameraInProgress = localStorage.getItem("camera-in-progress");
+                let pieceInProgress = localStorage.getItem("piece-in-progress");
+                localStorage.removeItem("camera-in-progress");
+                localStorage.removeItem("piece-in-progress");
+
+                if (cameraInProgress !== null && pieceInProgress !== null && 
+                    e.pendingResult && e.pendingResult.pluginStatus === "OK") {
+                    let imagePiece = ImagePiece.make({store: app.store, data: {uuid: pieceInProgress}});
+                    imagePiece.load().then( () => {
+                        this.piece.dateModified = new Date();
+                        imagePiece.set("mediaURI", e.pendingResult.result);
+                        imagePiece.save();
+                    });
+                }
+            }
+        });
 
     }, 100);
 }

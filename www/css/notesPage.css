@@ -19,3 +19,7 @@
     margin: 0; padding: 0;
     font-weight: normal;
 } 
+
+.page[data-page=notes] .list-block .item-media img {
+    width: 3rem;
+}

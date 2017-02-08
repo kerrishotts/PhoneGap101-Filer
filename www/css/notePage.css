@@ -19,3 +19,13 @@
 .page[data-page=note] .list-block .card .card-content-inner {
     white-space: pre-line;
 }
+
+.page[data-page=note] .list-block a[data-type="ImagePiece"] .card .card-content-inner {
+    flex-direction: column;
+    display: flex;
+}
+
+.page[data-page=note] .list-block a[data-type="ImagePiece"] .card .card-content-inner img {
+    width: 90vw;
+    margin-bottom: 1rem;
+}
