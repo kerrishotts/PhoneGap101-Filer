@@ -10,10 +10,10 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; 
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval';
                    script-src 'self' 'nonce-bootstrap' 'unsafe-eval';
-                   style-src 'self' 'unsafe-inline'; 
+                   style-src 'self' 'unsafe-inline';
                    media-src * blob:">
 
     <!-- Required meta tags-->
@@ -54,31 +54,13 @@
     <script type="text/javascript" src="lib/framework7/js/framework7.min.js"></script>
 
     <script type="text/javascript" src="lib/svg-injector/svg-injector.min.js"></script>
-    <script type="text/javascript" src="lib/systemjs/system.js"></script>
+    <script type="text/javascript" src="js/bundle.js"></script>
     <script type="text/javascript" nonce="bootstrap">
         // Elements to inject
         var mySVGsToInject = document.querySelectorAll('img.inject-me');
 
         // Do the injection
         SVGInjector(mySVGsToInject);
-
-        SystemJS.config({
-            baseURL: "",
-            map: {
-                text: "lib/systemjs/plugins/text.js"
-            },
-            meta: {
-                "html/*.html": {
-                    loader: "text"
-                }
-            }
-        });
-
-        SystemJS.import("js/app.js").then( app => {
-            console.log("App loaded and bootstrapped.");
-        }).catch( err => {
-            console.log("err", err);
-        }); 
     </script>
 </body>
 

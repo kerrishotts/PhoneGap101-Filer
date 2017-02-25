@@ -10,8 +10,8 @@ const Note = require("../models/Note.js");
 const PieceFactory = require("../factories/PieceFactory.js");
 const PieceEditorPageFactory = require("../factories/PieceEditorPageFactory.js");
 
-const _template = Template7.compile(require("../../html/pages/note.html!text"));
-const _listTemplate = Template7.compile(require("../../html/templates/noteListItem.html!text"))
+const _template = Template7.compile(require("../../html/pages/note.html"));
+const _listTemplate = Template7.compile(require("../../html/templates/noteListItem.html"))
 
 class NotePage {
 
@@ -44,7 +44,7 @@ class NotePage {
             $$(`.icon-eyedropper`).hide();
             window.app.sortableOpen(`${PAGESEL} .sortable`);
         }
-        $$(document).on("click", `.icon-pencil.page-note`, this.editTapped); 
+        $$(document).on("click", `.icon-pencil.page-note`, this.editTapped);
 
         this.checkTapped = () => {
             $$(`.icon-checkmark`).hide();
@@ -53,7 +53,7 @@ class NotePage {
             $$(`.icon-eyedropper`).css("display", "inherit");
             window.app.sortableClose(`${PAGESEL} .sortable`);
         }
-        $$(document).on("click", `.icon-checkmark.page-note`, this.checkTapped); 
+        $$(document).on("click", `.icon-checkmark.page-note`, this.checkTapped);
 
         this.colorTapped = () => {
             window.app.prompt("Enter a Hex or Web color", "Choose color",
@@ -67,7 +67,7 @@ class NotePage {
                 // CANCEL tapped; do nothing.
             });
         }
-        $$(document).on("click", `.icon-eyedropper.page-note`, this.colorTapped); 
+        $$(document).on("click", `.icon-eyedropper.page-note`, this.colorTapped);
 
         this.titleTapped = () => {
             window.app.prompt("Enter your note's title", "Choose title",
@@ -81,7 +81,7 @@ class NotePage {
                 // CANCEL tapped, do nothing.
             });
         }
-        $$(document).on("click", `.navbar .center.note-title`, this.titleTapped); 
+        $$(document).on("click", `.navbar .center.note-title`, this.titleTapped);
 
         this.pieceTapped = (e) => {
             let listItem = $$($$(e.target).closest(".item-link"));
@@ -91,7 +91,7 @@ class NotePage {
             let piecePage = PieceEditorPageFactory.make(itemType,{store:this.store, uuid, pageTitle});
             window.app.go(piecePage);
         }
-        $$(document).on("click", `${PAGESEL} .item-link`, this.pieceTapped); 
+        $$(document).on("click", `${PAGESEL} .item-link`, this.pieceTapped);
 
         this.pieceDeleted = (e) => {
             let listItem = $$($$(e.target).parent().prev().children("a")[0]);
@@ -114,7 +114,7 @@ class NotePage {
                 ]
             });
         }
-        $$(document).on("click", `.icon-bin.page-note`, this.deleteTapped); 
+        $$(document).on("click", `.icon-bin.page-note`, this.deleteTapped);
 
         this.addPiece = (PIECETYPE, data) => {
             let piece = PieceFactory.make(PIECETYPE, {store: this.store, data});
@@ -137,8 +137,8 @@ class NotePage {
             if (window.app.DEBUG) { console.log ("sorting note pieces..."); }
 
             let listItems = Array.from($$(`${PAGESEL} .sortable li a.item-link`));
-            this.note.content = listItems.map((a) => 
-                this.note.content.find(item => 
+            this.note.content = listItems.map((a) =>
+                this.note.content.find(item =>
                     item.uuid === $$(a).data("uuid")));
             this.note.dateModified = new Date();
             this.note.save();
@@ -153,13 +153,13 @@ class NotePage {
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
 
-        $$(document).off("click", `.icon-pencil.page-note`, this.editTapped); 
-        $$(document).off("click", `.icon-checkmark.page-note`, this.checkTapped); 
-        $$(document).off("click", `.icon-eyedropper.page-note`, this.colorTapped); 
-        $$(document).off("click", `.navbar .center.note-title`, this.titleTapped); 
-        $$(document).off("click", `.icon-bin.page-note`, this.deleteTapped); 
+        $$(document).off("click", `.icon-pencil.page-note`, this.editTapped);
+        $$(document).off("click", `.icon-checkmark.page-note`, this.checkTapped);
+        $$(document).off("click", `.icon-eyedropper.page-note`, this.colorTapped);
+        $$(document).off("click", `.navbar .center.note-title`, this.titleTapped);
+        $$(document).off("click", `.icon-bin.page-note`, this.deleteTapped);
         $$(document).off("sort", `${PAGESEL} .sortable li`, this.listSorted);
-        $$(document).off("click", `${PAGESEL} .item-link`, this.pieceTapped); 
+        $$(document).off("click", `${PAGESEL} .item-link`, this.pieceTapped);
         $$(document).off("click", `${PAGESEL} .swipeout-delete`, this.pieceDeleted);
         $$(document).off("click", `${PAGESEL} a.add-text-piece`, this.addTextPiece);
         $$(document).off("click", `${PAGESEL} a.add-image-piece`, this.addImagePiece);
@@ -175,9 +175,9 @@ class NotePage {
     updateNoteColor() {
         $$(`${PAGESEL} .page-content`).css("color", this.note.color);
         if (Template7.global.android) {
-            $$(`.navbar-inner.page-note`).css("background-color", this.note.color); 
+            $$(`.navbar-inner.page-note`).css("background-color", this.note.color);
         } else {
-            $$(`.navbar .center.note-title`).css("color", this.note.color); 
+            $$(`.navbar .center.note-title`).css("color", this.note.color);
         }
     }
 

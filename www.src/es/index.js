@@ -5,8 +5,8 @@ const LocalStorageAdapter = require("./store/adapters/LocalStorageAdapter.js");
 
 // Partials
 const partials = {
-    "navbar:ios": require("../html/partials/navbar-ios.html!text"),
-    "navbar:android": require("../html/partials/navbar-android.html!text")
+    "navbar:ios": require("../html/partials/navbar-ios.html"),
+    "navbar:android": require("../html/partials/navbar-android.html")
 };
 
 const helpers = {
@@ -59,7 +59,7 @@ const ImagePiece = require("./models/ImagePiece.js");
     if (isAndroid) {
         Dom7('head').append(
             `<link rel="stylesheet" href="./lib/framework7/css/framework7.material.min.css">
-             <link rel="stylesheet" href="./lib/framework7/css/framework7.material.colors.min.css">` 
+             <link rel="stylesheet" href="./lib/framework7/css/framework7.material.colors.min.css">`
         );
     }
     else {
@@ -167,7 +167,7 @@ function startApp() {
                 localStorage.removeItem("camera-in-progress");
                 localStorage.removeItem("piece-in-progress");
 
-                if (cameraInProgress !== null && pieceInProgress !== null && 
+                if (cameraInProgress !== null && pieceInProgress !== null &&
                     e.pendingResult && e.pendingResult.pluginStatus === "OK") {
                     let imagePiece = ImagePiece.make({store: app.store, data: {uuid: pieceInProgress}});
                     imagePiece.load().then( () => {

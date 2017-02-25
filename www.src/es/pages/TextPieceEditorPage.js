@@ -6,7 +6,7 @@ const PAGESEL = `.page[data-page="textPieceEditor"]`;
 const TextPiece = require("../models/TextPiece.js");
 const PieceEditorPage = require("./PieceEditorPage.js");
 
-const _template = Template7.compile(require("../../html/pages/textPieceEditor.html!text"));
+const _template = Template7.compile(require("../../html/pages/textPieceEditor.html"));
 
 class TextPieceEditorPage extends PieceEditorPage {
 

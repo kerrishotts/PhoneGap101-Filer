@@ -53,4 +53,7 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value="The camera is required so that you can add pictures to your notes." />
         <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="This app needs access to your photo library so you can add previous pictures to your notes." />
     </plugin>
+    <plugin name="cordova-plugin-webpack-transpiler" spec="../../../cordova/cordova-plugin-webpack-transpiler">
+        <variable name="CONFIG" value="typescript" />
+    </plugin>
 </widget>

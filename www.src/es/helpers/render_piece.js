@@ -1,6 +1,6 @@
 const PIECE = require("../constants/piece.js");
-const textPieceTemplate = require("../../html/templates/textPiece.html!text");
-const imagePieceTemplate = require("../../html/templates/imagePiece.html!text");
+const textPieceTemplate = require("../../html/templates/textPiece.html");
+const imagePieceTemplate = require("../../html/templates/imagePiece.html");
 
 const compiledPieces = {
     textPiece: Template7.compile(textPieceTemplate),
@@ -16,6 +16,6 @@ function render_piece() {
         default:
             return "No matching template found";
     }
-};     
+};
 
 module.exports = render_piece;

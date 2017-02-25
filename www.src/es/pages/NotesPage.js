@@ -8,8 +8,8 @@ const Notes = require("../models/Notes.js");
 const Note = require("../models/Note.js");
 const TextPiece = require("../models/TextPiece.js");
 
-const _template = Template7.compile(require("../../html/pages/notes.html!text"));
-const _listTemplate = Template7.compile(require("../../html/templates/notesListItem.html!text"))
+const _template = Template7.compile(require("../../html/pages/notes.html"));
+const _listTemplate = Template7.compile(require("../../html/templates/notesListItem.html"))
 
 const NotePage = require("./NotePage.js");
 const AboutPage = require("./AboutPage.js");
@@ -58,14 +58,14 @@ class NotesPage {
             let notePage = NotePage.make({store: this.store, uuid, pageTitle});
             window.app.go(notePage);
         }
-        $$(document).on("click", `${PAGESEL} .item-link`, this.noteTapped); 
+        $$(document).on("click", `${PAGESEL} .item-link`, this.noteTapped);
 
         this.addNote = () => {
             let note = Note.makeWithPieces(
-                {store: this.store, 
+                {store: this.store,
                  data: {title: "New Note"},
                         pieces: [TextPiece.make(
-                            {store: this.store, 
+                            {store: this.store,
                              data: {title: "Tap to edit",
                              content: `Tap to edit`}}),
                         ]});
@@ -89,14 +89,14 @@ class NotesPage {
             $$(`.icon-pencil`).hide();
             window.app.sortableOpen(`${PAGESEL} .sortable`);
         }
-        $$(document).on("click", `.icon-pencil.page-notes`, this.editTapped); 
+        $$(document).on("click", `.icon-pencil.page-notes`, this.editTapped);
 
         this.checkTapped = () => {
             $$(`.icon-checkmark`).hide();
             $$(`.icon-pencil`).css("display", "inherit");
             window.app.sortableClose(`${PAGESEL} .sortable`);
         }
-        $$(document).on("click", `.icon-checkmark.page-notes`, this.checkTapped); 
+        $$(document).on("click", `.icon-checkmark.page-notes`, this.checkTapped);
 
         this.listSorted = (e) => {
             if (window.app.DEBUG) { console.log ("sorting notes..."); }
@@ -130,13 +130,13 @@ class NotesPage {
         this.store.unsubscribe("savedEntity", this);
         this.store.unsubscribe("loadedEntity", this);
         this.store.unsubscribe("removedEntity", this);
-        $$(document).off("click", `${PAGESEL} .item-link`, this.noteTapped); 
+        $$(document).off("click", `${PAGESEL} .item-link`, this.noteTapped);
         $$(document).off("click", `${PAGESEL} .swipeout-delete`, this.noteDeleted);
         $$(document).off("click", `.icon-plus.page-notes`, this.addNote);
         $$(document).off("click", `${PAGESEL} .floating-button`, this.addNote);
         $$(document).off("click", `.icon-info.page-notes`, this.infoTapped);
-        $$(document).off("click", `.icon-pencil.page-notes`, this.editTapped); 
-        $$(document).off("click", `.icon-checkmark.page-notes`, this.checkTapped); 
+        $$(document).off("click", `.icon-pencil.page-notes`, this.editTapped);
+        $$(document).off("click", `.icon-checkmark.page-notes`, this.checkTapped);
         $$(document).off("sort", `${PAGESEL} .sortable li`, this.listSorted);
     }
 
@@ -190,85 +190,85 @@ class NotesPage {
         if (window.app.DEBUG) { console.log("making default notes..."); }
         this.notes.set("content", [
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "Welcome to Filer"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "What's This?",
-                             content: trimWhitespace(`You can use this app to store important notes that you need 
+                             content: trimWhitespace(`You can use this app to store important notes that you need
                                        to remember.`)}}),
                         ]}),
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "About pieces"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Pieces",
                              content: trimWhitespace(`Notes are made of pieces.
                                        You can have as many pieces as you need.`)}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Second piece",
                              content: `Want more? Just tap the Add icon.`}}),
                         ]}),
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "Be colorful!", color: "#4080C0"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Use the rainbow",
                              content: `Notes and individual pieces can be any color you like!`}}),
                         ]}),
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "Read this!", color: "#800000"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "More color",
                              content: `Color could indicate importance, but you are free to interpret color as you wish.`}}),
                         ]}),
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "Example: Vacation"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Dates",
                              content: `2017/07/04 - 2017/07/15`}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Location",
                              content: `Amsterdam?`}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Hotel",
                              content: trimWhitespace(`Hotel Estherea
                                        Confirmation #12345678`)}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "Flight",
                              content: trimWhitespace(`Delta Flight #201
                                        Confirmation #ABCDEFGH
                                        Seat 18A`)}}),
                         ]}),
             Note.makeWithPieces(
-                {store, 
+                {store,
                  data: {title: "Example: Gift Ideas"},
                         pieces: [TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "For Mom",
                              content: trimWhitespace(`- Coffee maker
                                        - Tablet
                                        - Soft blanket`)}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "For Dad",
-                             content: trimWhitespace(`- Foot stool 
-                                       - Huge TV 
+                             content: trimWhitespace(`- Foot stool
+                                       - Huge TV
                                        - Carving tools`)}}),
                         TextPiece.make(
-                            {store, 
+                            {store,
                              data: {title: "For Brother",
-                             content: trimWhitespace(`- Football poster 
+                             content: trimWhitespace(`- Football poster
                                        - Lord of the Rings trilogy`)}}),
                         ]}),
         ]);

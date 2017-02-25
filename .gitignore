@@ -6,3 +6,5 @@ hooks
 .git
 .vscode
 build.json
+www
+typings

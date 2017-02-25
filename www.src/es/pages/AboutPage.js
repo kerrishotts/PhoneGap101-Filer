@@ -2,7 +2,7 @@ const $$ = window.Dom7;
 
 const PAGESEL = `.page[data-page="about"]`;
 
-const _template = Template7.compile(require("../../html/pages/about.html!text"));
+const _template = Template7.compile(require("../../html/pages/about.html"));
 
 let _compiledTemplate;
 

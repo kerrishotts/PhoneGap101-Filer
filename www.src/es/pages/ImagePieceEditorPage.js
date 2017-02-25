@@ -6,7 +6,7 @@ const PAGESEL = `.page[data-page="imagePieceEditor"]`;
 const ImagePiece = require("../models/ImagePiece.js");
 const PieceEditorPage = require("./PieceEditorPage.js");
 
-const _template = Template7.compile(require("../../html/pages/imagePieceEditor.html!text"));
+const _template = Template7.compile(require("../../html/pages/imagePieceEditor.html"));
 
 class ImagePieceEditorPage extends PieceEditorPage {
 
